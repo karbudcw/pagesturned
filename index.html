@@ -149,12 +149,41 @@
       }
     }
     function saveBook() {
-      if (!form.title.trim()) { error = 'Title required'; render(); return; }
-      const rating = form.rating === '' || form.rating === null ? null : parseInt(form.rating);
+      // Read all values directly from DOM to ensure we capture current input state
+      const titleEl = document.querySelector('input[data-field="title"]');
+      const authorEl = document.querySelector('input[data-field="author"]');
+      const yearEl = document.querySelector('input[data-field="year"]');
+      const coverEl = document.querySelector('input[data-field="cover"]');
+      const dateReadEl = document.querySelector('input[data-field="dateRead"]');
+      const ratingEl = document.querySelector('input[data-field="rating"]');
+      const reviewEl = document.querySelector('textarea[data-field="review"]');
+      
+      const title = titleEl ? titleEl.value : form.title;
+      const author = authorEl ? authorEl.value : form.author;
+      const year = yearEl ? yearEl.value : form.year;
+      const cover = coverEl ? coverEl.value : form.cover;
+      const dateRead = dateReadEl ? dateReadEl.value : form.dateRead;
+      const ratingVal = ratingEl ? ratingEl.value : form.rating;
+      const review = reviewEl ? reviewEl.value : form.review;
+      
+      if (!title.trim()) { error = 'Title required'; render(); return; }
+      const rating = ratingVal === '' || ratingVal === null ? null : parseInt(ratingVal);
+      
+      const bookData = {
+        title: title.trim(),
+        author: author.trim(),
+        year: parseInt(year) || null,
+        cover: cover.trim(),
+        dateRead: dateRead,
+        rating: rating,
+        review: review.trim(),
+        isbn: form.isbn
+      };
+      
       if (editingBook) {
-        books = books.map(b => b.id === editingBook.id ? { ...form, id: b.id, year: parseInt(form.year) || null, rating } : b);
+        books = books.map(b => b.id === editingBook.id ? { ...bookData, id: b.id } : b);
       } else {
-        books.push({ ...form, id: Date.now(), year: parseInt(form.year) || null, rating });
+        books.push({ ...bookData, id: Date.now() });
       }
       saveBooks();
       view = 'list';
@@ -274,35 +303,35 @@
             ${form.cover ? `<div style="text-align:center;margin-bottom:16px"><img src="${form.cover}" style="height:120px;border-radius:4px" onerror="this.style.display='none'"></div>` : ''}
             <div class="form-group">
               <label>Title *</label>
-              <input type="text" value="${form.title}" oninput="form.title=this.value" style="width:100%">
+              <input type="text" data-field="title" value="${form.title}" oninput="form.title=this.value" style="width:100%">
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label>Author</label>
-                <input type="text" value="${form.author}" oninput="form.author=this.value" style="width:100%">
+                <input type="text" data-field="author" value="${form.author}" oninput="form.author=this.value" style="width:100%">
               </div>
               <div class="form-group">
                 <label>Year Published</label>
-                <input type="text" value="${form.year}" oninput="form.year=this.value" style="width:100%">
+                <input type="text" data-field="year" value="${form.year}" oninput="form.year=this.value" style="width:100%">
               </div>
             </div>
             <div class="form-group">
               <label>Cover URL</label>
-              <input type="text" value="${form.cover}" oninput="form.cover=this.value" placeholder="https://..." style="width:100%">
+              <input type="text" data-field="cover" value="${form.cover}" oninput="form.cover=this.value" placeholder="https://..." style="width:100%">
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label>Date Read</label>
-                <input type="date" value="${form.dateRead}" oninput="form.dateRead=this.value">
+                <input type="date" data-field="dateRead" value="${form.dateRead}" oninput="form.dateRead=this.value">
               </div>
               <div class="form-group">
                 <label>Rating (1-100)</label>
-                <input type="number" min="1" max="100" value="${form.rating || ''}" oninput="form.rating=this.value" placeholder="Leave blank if unrated">
+                <input type="number" data-field="rating" min="1" max="100" value="${form.rating || ''}" oninput="form.rating=this.value" placeholder="Leave blank if unrated">
               </div>
             </div>
             <div class="form-group">
               <label>Review</label>
-              <textarea oninput="form.review=this.value" rows="4" style="width:100%">${form.review}</textarea>
+              <textarea data-field="review" oninput="form.review=this.value" rows="4" style="width:100%">${form.review}</textarea>
             </div>
             <button class="btn" onclick="saveBook()" style="width:100%">${editingBook ? 'Save Changes' : 'Add Book'}</button>
           </div>
