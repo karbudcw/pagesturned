@@ -1,7 +1,5 @@
 {
-  "name": "book-reviews",
+  "name": "pagesturned",
   "version": "1.0.0",
-  "dependencies": {
-    "@netlify/blobs": "^8.1.0"
-  }
+  "private": true
 }
