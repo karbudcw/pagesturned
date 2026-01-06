@@ -68,7 +68,7 @@
   <script>
     let books = [];
     let view = 'list';
-    let yearFilter = 'all';
+    let yearFilter = 'current';
     let editingBook = null;
     let form = { title: '', author: '', year: '', cover: '', rating: null, review: '', dateRead: '', isbn: '', pageCount: null, format: 'physical' };
     let isbnInput = '';
@@ -252,24 +252,36 @@
     }
 
     function filterBooks() {
-      if (yearFilter === 'all') return [...books].sort((a,b) => (b.rating||0) - (a.rating||0));
+      const currentYear = new Date().getFullYear();
+      if (yearFilter === 'current') {
+        return books.filter(b => getYearGroup(b.dateRead) === String(currentYear)).sort((a,b) => (b.rating||0) - (a.rating||0));
+      }
       if (yearFilter === 'rankings') return [...books].filter(b => b.rating !== null).sort((a,b) => b.rating - a.rating);
       return books.filter(b => getYearGroup(b.dateRead) === yearFilter).sort((a,b) => (b.rating||0) - (a.rating||0));
     }
 
     function renderList() {
       if (loading) return '<div class="loading">Loading...</div>';
-      const years = ['all', '2025', '2024', '2023', '2022', '2021', '2020', 'Older', 'rankings'];
+      const currentYear = new Date().getFullYear();
+      const years = ['current', currentYear, '2025', '2024', '2023', '2022', '2021', '2020', 'Older', 'rankings'];
       const filtered = filterBooks();
-      const rated = books.filter(b => b.rating !== null);
+      
+      // Calculate stats based on filtered books for current view
+      const rated = filtered.filter(b => b.rating !== null);
       const avg = rated.length ? (rated.reduce((s,b) => s + b.rating, 0) / rated.length).toFixed(0) : '—';
-      const totalPages = books.reduce((sum, b) => sum + (b.pageCount || 0), 0);
+      const totalPages = filtered.reduce((sum, b) => sum + (b.pageCount || 0), 0);
 
       let html = `
         <header>
           <h1>Pages Turned</h1>
           <nav>
-            ${years.map(y => `<button class="${yearFilter === y ? 'active' : ''}" onclick="setYear('${y}')">${y === 'all' ? 'All' : y === 'rankings' ? '🏆 Rankings' : y}</button>`).join('')}
+            ${years.map(y => {
+              let label;
+              if (y === 'current') label = 'Current';
+              else if (y === 'rankings') label = '🏆 All Time';
+              else label = y;
+              return `<button class="${yearFilter === y ? 'active' : ''}" onclick="setYear('${y}')">${label}</button>`;
+            }).join('')}
           </nav>
         </header>
         <div class="container">
@@ -278,10 +290,10 @@
             ${isAdmin ? '<button class="btn" onclick="openAdd()">+ Add Book</button>' : ''}
           </div>
           <div class="card stats">
-            <div><div class="stat-number">${books.length}</div><div class="stat-label">Books</div></div>
+            <div><div class="stat-number">${filtered.length}</div><div class="stat-label">Books</div></div>
             <div><div class="stat-number">${totalPages.toLocaleString()}</div><div class="stat-label">Pages</div></div>
             <div><div class="stat-number">${avg}</div><div class="stat-label">Avg Rating</div></div>
-            <div><div class="stat-number">${books.filter(b => b.rating >= 90).length}</div><div class="stat-label">90+ Books</div></div>
+            <div><div class="stat-number">${filtered.filter(b => b.rating >= 90).length}</div><div class="stat-label">90+ Books</div></div>
           </div>`;
 
       if (yearFilter === 'rankings') {
