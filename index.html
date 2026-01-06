@@ -10,6 +10,8 @@
     body { font-family: 'Inter', system-ui, sans-serif; background: #faf9f7; color: #2d2d2d; line-height: 1.6; }
     .container { max-width: 900px; margin: 0 auto; padding: 24px; }
     header { padding: 40px 24px 24px; text-align: center; border-bottom: 1px solid #e8e6e3; }
+    .logo { margin-bottom: 12px; }
+    .logo svg { height: 50px; width: auto; }
     h1 { font-family: 'Libre Baskerville', serif; font-size: 2rem; font-weight: 400; margin-bottom: 8px; }
     .subtitle { color: #666; font-size: 0.95rem; }
     nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
@@ -52,6 +54,7 @@
     .import-section { margin-top: 24px; padding: 20px; background: #fff; border: 1px solid #e8e6e3; border-radius: 8px; }
     .import-section textarea { width: 100%; height: 150px; margin: 12px 0; }
     .book-rank { font-size: 14px; color: #999; margin-right: 12px; min-width: 30px; }
+    .admin-badge { display: inline-block; background: #2D3E50; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
     @media (max-width: 600px) {
       .form-row { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, 1fr); }
@@ -74,6 +77,43 @@
     let error = '';
     let batchUpdateStatus = '';
     const AFFILIATE_TAG = 'pagesturned0f-20';
+    
+    // Admin authentication
+    const ADMIN_KEY = 'CV!vxUCQvr*p47xNX@ZB';
+    let isAdmin = false;
+    
+    function checkAdmin() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const key = urlParams.get('admin');
+      if (key === ADMIN_KEY) {
+        isAdmin = true;
+        sessionStorage.setItem('adminAuth', 'true');
+      } else if (sessionStorage.getItem('adminAuth') === 'true') {
+        isAdmin = true;
+      }
+    }
+    
+    function logout() {
+      sessionStorage.removeItem('adminAuth');
+      isAdmin = false;
+      window.location.href = window.location.pathname;
+    }
+    
+    checkAdmin();
+
+    const logoSVG = `<svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(8, 6) scale(0.8)">
+        <rect x="0" y="0" width="32" height="48" rx="2" fill="#f5f5f5" stroke="#2d2d2d" stroke-width="1.5"/>
+        <line x1="6" y1="10" x2="26" y2="10" stroke="#ddd" stroke-width="2"/>
+        <line x1="6" y1="17" x2="23" y2="17" stroke="#ddd" stroke-width="2"/>
+        <line x1="6" y1="24" x2="25" y2="24" stroke="#ddd" stroke-width="2"/>
+        <line x1="6" y1="31" x2="20" y2="31" stroke="#ddd" stroke-width="2"/>
+        <path d="M 40 24 L 54 24" fill="none" stroke="#2D3E50" stroke-width="2" stroke-linecap="round"/>
+        <path d="M 50 19 L 55 24 L 50 29" fill="none" stroke="#2D3E50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="62" y="0" width="32" height="48" rx="2" fill="#2D3E50"/>
+        <path d="M 72 25 L 77 31 L 88 17" fill="none" stroke="#faf9f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </svg>`;
 
     async function batchUpdateAmazonLinks() {
       batchUpdateStatus = 'Updating Amazon links...';
@@ -106,7 +146,6 @@
       for (let book of books) {
         if (book.isbn && (!book.cover || !book.pageCount)) {
           try {
-            // Try Google Books API first
             const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${book.isbn}`);
             const data = await res.json();
             
@@ -127,7 +166,6 @@
               }
             }
             
-            // Small delay to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, 100));
           } catch (e) {
             console.error('Failed to fetch for ISBN:', book.isbn);
@@ -193,7 +231,6 @@
       if (!isbnInput.trim()) return;
       error = '';
       try {
-        // Try Google Books API first (better coverage + page counts)
         const googleRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbnInput.trim()}`);
         const googleData = await googleRes.json();
         
@@ -204,17 +241,14 @@
           form.year = book.publishedDate?.match(/\d{4}/)?.[0] || form.year;
           form.pageCount = book.pageCount || form.pageCount;
           
-          // Try Google Books cover first
           if (book.imageLinks?.thumbnail) {
             form.cover = book.imageLinks.thumbnail.replace('http:', 'https:');
           } else {
-            // Fallback to Open Library cover
             form.cover = `https://covers.openlibrary.org/b/isbn/${isbnInput.trim()}-L.jpg`;
           }
           form.isbn = isbnInput.trim();
           form.amazonLink = `https://www.amazon.com/dp/${isbnInput.trim()}?tag=${AFFILIATE_TAG}`;
         } else {
-          // Fallback to Open Library if Google Books has nothing
           const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbnInput.trim()}&format=json&jscmd=data`);
           const data = await res.json();
           const b = data[`ISBN:${isbnInput.trim()}`];
@@ -305,7 +339,8 @@
 
       let html = `
         <header>
-          <h1>Pages Turned</h1>
+          <div class="logo">${logoSVG}</div>
+          <h1>Pages Turned${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}</h1>
           <p class="subtitle">${books.length} books</p>
           <nav>
             ${years.map(y => `<button class="${yearFilter === y ? 'active' : ''}" onclick="setYear('${y}')">${y === 'all' ? 'All' : y === 'rankings' ? '🏆 Rankings' : y}</button>`).join('')}
@@ -313,10 +348,10 @@
         </header>
         <div class="container">
           <div class="top-bar">
-            <div></div>
+            <div>${isAdmin ? `<button class="btn btn-secondary btn-small" onclick="logout()">Logout</button>` : ''}</div>
             <div style="display:flex;gap:8px;">
-              <button class="btn btn-secondary" onclick="setView('import')">Utilities</button>
-              <button class="btn" onclick="openAdd()">+ Add Book</button>
+              ${isAdmin ? `<button class="btn btn-secondary" onclick="setView('import')">Utilities</button>
+              <button class="btn" onclick="openAdd()">+ Add Book</button>` : ''}
             </div>
           </div>
           <div class="card stats">
@@ -352,10 +387,10 @@
                 ${book.review ? `<p class="book-review">${book.review}</p>` : ''}
               </div>
               ${ratingCircle(book.rating)}
-              <div class="book-actions">
+              ${isAdmin ? `<div class="book-actions">
                 <button class="btn btn-secondary btn-small" onclick="openEdit(books.find(b=>b.id===${book.id}))">Edit</button>
                 <button class="btn btn-danger btn-small" onclick="deleteBook(${book.id})">Delete</button>
-              </div>
+              </div>` : ''}
             </div>`;
           });
         }
@@ -365,6 +400,7 @@
     }
 
     function renderEdit() {
+      if (!isAdmin) { view = 'list'; render(); return ''; }
       return `
         <div class="container" style="padding-top:32px">
           <button class="back-link" onclick="goBack()">← Back</button>
@@ -418,7 +454,6 @@
                 <input type="number" min="1" max="100" value="${form.rating || ''}" oninput="form.rating=this.value" placeholder="Leave blank if unrated">
               </div>
               <div class="form-group">
-                <!-- Empty space for alignment -->
               </div>
             </div>
             <div class="form-group">
@@ -431,6 +466,7 @@
     }
 
     function renderImport() {
+      if (!isAdmin) { view = 'list'; render(); return ''; }
       return `
         <div class="container" style="padding-top:32px">
           <button class="back-link" onclick="setView('list')">← Back</button>
