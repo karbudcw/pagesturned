@@ -105,23 +105,25 @@
       return '📖';
     };
 
+    const formatDateRead = d => {
+      if (!d) return '';
+      const date = new Date(d);
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `Read ${month} ${year}`;
+    };
+
     async function loadBooks() {
       try {
         const res = await fetch('/api/books');
         const data = await res.json();
         books = data.books || [];
-        console.log('Loaded books:', books.length);
-        console.log('Sample book with pageCount:', books.find(b => b.pageCount));
-        const totalPages = books.reduce((sum, b) => sum + (b.pageCount || 0), 0);
-        console.log('Total pages:', totalPages);
       } catch (e) { books = []; }
       loading = false;
       render();
     }
 
     async function saveBooks() {
-      console.log('Saving books:', books.length, 'books');
-      console.log('Sample book with pageCount:', books.find(b => b.pageCount));
       try {
         await fetch('/api/books', {
           method: 'POST',
@@ -131,7 +133,6 @@
           },
           body: JSON.stringify({ books })
         });
-        console.log('Save successful');
       } catch (e) { console.error('Save failed:', e); }
       render();
     }
@@ -181,20 +182,11 @@
       const pageCountInput = document.querySelector('input[placeholder="Number of pages"]');
       const ratingInput = document.querySelector('input[placeholder="Leave blank if unrated"]');
       
-      console.log('pageCountInput element:', pageCountInput);
-      console.log('pageCountInput value:', pageCountInput ? pageCountInput.value : 'not found');
-      
       const ratingValue = ratingInput ? ratingInput.value.trim() : '';
       const pageCountValue = pageCountInput ? pageCountInput.value.trim() : '';
       
-      console.log('ratingValue:', ratingValue);
-      console.log('pageCountValue:', pageCountValue);
-      
       const rating = ratingValue !== '' ? parseInt(ratingValue) : null;
       const pageCount = pageCountValue !== '' ? parseInt(pageCountValue) : null;
-      
-      console.log('Parsed rating:', rating);
-      console.log('Parsed pageCount:', pageCount);
       
       const bookData = {
         ...form,
@@ -203,15 +195,11 @@
         pageCount
       };
       
-      console.log('bookData:', bookData);
-      
       if (editingBook) {
         books = books.map(b => b.id === editingBook.id ? { ...b, ...bookData } : b);
       } else {
         books.push({ ...bookData, id: Date.now() });
       }
-      
-      console.log('Book after save:', editingBook ? books.find(b => b.id === editingBook.id) : books[books.length - 1]);
       
       saveBooks();
       view = 'list';
@@ -280,7 +268,8 @@
             <div class="book-cover">${book.cover ? `<img src="${book.cover}" onerror="this.parentElement.innerHTML=''">`  : ''}</div>
             <div class="book-info">
               <div class="book-title">${book.title}</div>
-              <p class="book-author">${book.author || ''}${book.year ? ` (${book.year})` : ''} ${getFormatEmoji(book.format || 'physical')}</p>
+              <p class="book-author">${book.author || ''}${book.year ? ` (${book.year})` : ''}</p>
+              ${book.dateRead ? `<p class="book-author">${formatDateRead(book.dateRead)} ${getFormatEmoji(book.format || 'physical')}</p>` : ''}
               ${book.review ? `<p class="book-review">${book.review}</p>` : ''}
             </div>
             ${ratingCircle(book.rating)}
@@ -295,7 +284,8 @@
               <div class="book-cover">${book.cover ? `<img src="${book.cover}" onerror="this.parentElement.innerHTML=''">`  : ''}</div>
               <div class="book-info">
                 <div class="book-title">${book.title}</div>
-                <p class="book-author">${book.author || ''}${book.year ? ` (${book.year})` : ''} ${getFormatEmoji(book.format || 'physical')}</p>
+                <p class="book-author">${book.author || ''}${book.year ? ` (${book.year})` : ''}</p>
+                ${book.dateRead ? `<p class="book-author">${formatDateRead(book.dateRead)} ${getFormatEmoji(book.format || 'physical')}</p>` : ''}
                 ${book.review ? `<p class="book-review">${book.review}</p>` : ''}
               </div>
               ${ratingCircle(book.rating)}
