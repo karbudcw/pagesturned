@@ -109,7 +109,7 @@
       const date = new Date(d);
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const month = months[date.getMonth()];
-      const year = String(date.getFullYear()).slice(2);
+      const year = date.getFullYear();
       return `Read ${month} ${year}`;
     };
 
@@ -170,9 +170,15 @@
           document.getElementById('authorInput').value = b.authors?.[0]?.name || '';
           document.getElementById('yearInput').value = b.publish_date?.match(/\d{4}/)?.[0] || '';
           document.getElementById('coverInput').value = `https://covers.openlibrary.org/b/isbn/${isbnInput}-M.jpg`;
-        } else { error = 'Book not found.'; }
-      } catch (e) { error = 'Failed to fetch.'; }
-      render();
+          // Don't call render() here - it would wipe out the form values we just set
+        } else {
+          error = 'Book not found.';
+          render();
+        }
+      } catch (e) {
+        error = 'Failed to fetch.';
+        render();
+      }
     }
 
     function openAdd() { editingBook = null; view = 'edit'; error = ''; render(); }
