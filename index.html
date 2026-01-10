@@ -113,8 +113,8 @@
       nav button { padding: 6px 12px; font-size: 13px; }
       .book-review { font-size: 1rem; }
       /* Mobile book card layout - rank centered at top, rating centered at bottom */
-      .book-card { flex-wrap: wrap; position: relative; padding-top: 44px; }
-      .book-card .book-rank { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); margin-right: 0; font-weight: 600; }
+      .book-card { flex-wrap: wrap; position: relative; padding-top: 52px; }
+      .book-card .book-rank { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); margin-right: 0; font-weight: 600; }
       .book-card .book-cover { width: 55px; height: 85px; }
       .book-card .book-info { min-width: calc(100% - 130px); }
       .book-card .rating-circle { margin: 12px auto 0; }
@@ -402,7 +402,7 @@
       let html = `
         <header>
           <img src="logo.png" alt="Pages Turned" class="logo-image">
-          <p class="mission">The TL;DR of books.</p>
+          <p class="mission">The TL;DR of book reviews.</p>
           <nav>
             <button class="${yearFilter === 'all-time' ? 'active' : ''}" onclick="setYear('all-time')">🏆 All Time</button>
             <button class="${yearFilter === 'current' ? 'active' : ''}" onclick="setYear('current')">Current Year</button>
@@ -462,7 +462,7 @@
       }
       html += '</div>';
       html += `<footer>
-        <p>Ratings 1-100 based on a highly scientific formula. Best described as <em>whatever comes to mind</em>.</p>
+        <p>Ratings 1-100.</p>
         <div class="rating-legend">
           <div class="rating-legend-item">
             <div class="legend-circle" style="background:#1B5E20;"></div>
