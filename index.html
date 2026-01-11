@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V1.6.3 - Clickable affiliate links on book titles -->
+  <!-- V1.6.3 - Clickable affiliate links, Amazon URL in admin form -->
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -131,7 +131,7 @@
     let view = 'list';
     let yearFilter = 'all-time'; // Changed default to all-time
     let editingBook = null;
-    let form = { title: '', author: '', year: '', cover: '', rating: null, review: '', dateRead: '', isbn: '', pageCount: null, format: 'physical' };
+    let form = { title: '', author: '', year: '', cover: '', rating: null, review: '', dateRead: '', isbn: '', pageCount: null, format: 'physical', amazonUrl: '' };
     let isbnInput = '';
     let loading = true;
     let error = '';
@@ -233,14 +233,14 @@
     }
 
     function resetForm() {
-      form = { title: '', author: '', year: '', cover: '', rating: null, review: '', dateRead: '', isbn: '', pageCount: null, format: 'physical' };
+      form = { title: '', author: '', year: '', cover: '', rating: null, review: '', dateRead: '', isbn: '', pageCount: null, format: 'physical', amazonUrl: '' };
       isbnInput = '';
       error = '';
     }
 
     function openAdd() { resetForm(); editingBook = null; view = 'edit'; render(); }
     function openEdit(book) {
-      form = { ...book, year: String(book.year || ''), rating: book.rating, pageCount: book.pageCount || null, format: book.format || 'physical' };
+      form = { ...book, year: String(book.year || ''), rating: book.rating, pageCount: book.pageCount || null, format: book.format || 'physical', amazonUrl: book.amazonUrl || '' };
       isbnInput = book.isbn || '';
       editingBook = book;
       view = 'edit';
@@ -269,6 +269,7 @@
       const authorEl = allInputs[1]; // Second is author
       const yearEl = allInputs[2]; // Third is year
       const coverEl = allInputs[3]; // Fourth is cover URL
+      const amazonUrlEl = allInputs[4]; // Fifth is Amazon URL
       
       const title = titleEl ? titleEl.value.trim() : '';
       if (!title) { error = 'Title required'; render(); return; }
@@ -276,6 +277,7 @@
       const author = authorEl ? authorEl.value.trim() : '';
       const year = yearEl ? parseInt(yearEl.value) || null : null;
       const cover = coverEl ? coverEl.value.trim() : '';
+      const amazonUrl = amazonUrlEl ? amazonUrlEl.value.trim() : '';
       const dateRead = dateReadInput ? dateReadInput.value : '';
       const pageCount = pageCountInput && pageCountInput.value.trim() !== '' ? parseInt(pageCountInput.value) : null;
       const rating = ratingInput && ratingInput.value.trim() !== '' ? parseInt(ratingInput.value) : null;
@@ -286,6 +288,7 @@
         author,
         year,
         cover,
+        amazonUrl,
         dateRead,
         pageCount,
         rating,
@@ -525,6 +528,10 @@
             <div class="form-group">
               <label>Cover URL</label>
               <input type="text" value="${form.cover}" oninput="form.cover=this.value" placeholder="https://..." style="width:100%">
+            </div>
+            <div class="form-group">
+              <label>Amazon URL</label>
+              <input type="text" value="${form.amazonUrl}" oninput="form.amazonUrl=this.value" placeholder="https://www.amazon.com/dp/..." style="width:100%">
             </div>
             <div class="form-group">
               <label>Format</label>
