@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V1.7.9 - Text/tagline vertically aligned to P icon top/bottom -->
+  <!-- V1.7.11 - Text block sized to match icon height for top/bottom alignment -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -46,7 +46,7 @@
     }
     .logo-section {
       display: flex;
-      align-items: stretch;
+      align-items: flex-start;
       gap: 20px;
     }
     .logo-icon {
@@ -56,19 +56,18 @@
     .brand-text {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      line-height: 1.2;
-      padding: 2px 0;
+      line-height: 1.1;
     }
     .brand-name {
       font-family: 'Libre Baskerville', serif;
-      font-size: 1.8rem;
+      font-size: 2.5rem;
       font-weight: 700;
       color: #2D3E50;
+      margin-bottom: 8px;
     }
     .tagline {
       color: #555;
-      font-size: 0.95rem;
+      font-size: 1.15rem;
     }
     
     nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
@@ -161,14 +160,12 @@
       .logo-icon {
         height: 110px;
       }
-      .brand-text {
-        padding: 2px 0;
-      }
       .brand-name {
-        font-size: 2.4rem;
+        font-size: 3rem;
+        margin-bottom: 10px;
       }
       .tagline {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
       }
       nav {
         width: 100%;
