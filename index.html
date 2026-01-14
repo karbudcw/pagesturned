@@ -4,17 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V1.6.3 - Clickable affiliate links, Amazon URL in admin form -->
+  <!-- V1.7 - New header layout with P icon, favicon, and meta tags -->
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  
+  <!-- Open Graph / Social Media Meta Tags -->
+  <meta property="og:title" content="Pages Turned">
+  <meta property="og:description" content="The TL;DR of book reviews.">
+  <meta property="og:image" content="icon.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Pages Turned">
+  <meta name="twitter:description" content="The TL;DR of book reviews.">
+  <meta name="twitter:image" content="icon.png">
+  
+  <!-- General Meta -->
+  <meta name="description" content="The TL;DR of book reviews. One-sentence reviews with a 1-100 rating system.">
+  <meta name="theme-color" content="#2D3E50">
+  
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', system-ui, sans-serif; background: #faf9f7; color: #2D3E50; line-height: 1.6; }
     .container { max-width: 900px; margin: 0 auto; padding: 8px 24px 24px 24px; }
-    header { padding: 24px 24px 12px; text-align: center; border-bottom: 1px solid #e8e6e3; }
-    h1 { font-family: 'Libre Baskerville', serif; font-size: 2rem; font-weight: 400; margin-bottom: 0; }
-    .subtitle { color: #666; font-size: 0.95rem; }
-    .mission { color: #666; font-size: 1.15rem; margin-top: 6px; font-style: italic; letter-spacing: 0.02em; }
-    nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
+    
+    /* New Header Layout - V1.7 */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px;
+      border-bottom: 1px solid #e8e6e3;
+      gap: 24px;
+    }
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo-icon {
+      height: 52px;
+      width: auto;
+    }
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.3;
+    }
+    .brand-name {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #2D3E50;
+    }
+    .tagline {
+      color: #666;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+    
+    nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
     nav button { background: none; border: 1px solid #ddd; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; font-family: inherit; transition: all 0.2s; }
     nav button:hover { border-color: #999; }
     nav button.active { background: #2D3E50; color: #fff; border-color: #2D3E50; font-weight: 500; }
@@ -36,8 +87,6 @@
     .book-cover img { width: 100%; height: 100%; object-fit: cover; }
     .book-info { flex: 1; min-width: 0; }
     .book-title { font-family: 'Libre Baskerville', serif; font-size: 1.15rem; font-weight: 700; color: #2D3E50; margin-bottom: 6px; }
-    .book-title a { color: #2D3E50; text-decoration: none; }
-    .book-title a:hover { color: #4a6fa5; text-decoration: underline; }
     .book-author { color: #666; font-size: 0.85rem; margin-bottom: 4px; }
     .book-date-read { color: #666; font-size: 0.85rem; margin-bottom: 8px; }
     
@@ -72,7 +121,7 @@
     .format-btn { padding: 8px 16px; border: 2px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
     .format-btn:hover { border-color: #999; }
     .format-btn.selected { border-color: #2D3E50; background: #f0f4f8; }
-    footer { text-align: center; padding: 40px 24px 20px; border-top: 1px solid #e8e6e3; margin-top: 40px; color: #888; font-size: 0.9rem; line-height: 1.6; }
+    footer { text-align: center; padding: 40px 24px; border-top: 1px solid #e8e6e3; margin-top: 40px; color: #888; font-size: 0.9rem; line-height: 1.6; }
     .rating-legend { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px; margin-top: 12px; }
     .rating-legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
     .legend-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
@@ -85,33 +134,39 @@
     .dropdown-content button:last-child { border-radius: 0 0 8px 8px; }
     .dropdown-content button:hover { background: #f5f5f5; }
     .dropdown.active .dropdown-content { display: block; }
-    footer { text-align: center; padding: 40px 24px; border-top: 1px solid #e8e6e3; margin-top: 40px; color: #888; font-size: 0.9rem; line-height: 1.6; }
-    
-    /* Dropdown menu for Older years */
-    .dropdown { position: relative; display: inline-block; }
-    .dropdown-content { display: none; position: absolute; background: white; min-width: 120px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px; z-index: 1000; top: 100%; margin-top: 8px; border: 1px solid #e8e6e3; }
-    .dropdown-content button { display: block; width: 100%; text-align: left; padding: 10px 16px; border: none; background: none; cursor: pointer; font-size: 14px; font-family: inherit; transition: background 0.2s; border-radius: 0; }
-    .dropdown-content button:first-child { border-radius: 8px 8px 0 0; }
-    .dropdown-content button:last-child { border-radius: 0 0 8px 8px; }
-    .dropdown-content button:hover { background: #f5f5f5; }
-    .dropdown.active .dropdown-content { display: block; }
-    
-    /* Logo image style */
-    .logo-image {
-      max-width: 400px;
-      width: auto;
-      height: auto;
-    }
     
     /* Last Update tooltip */
     .stat-last-update { position: relative; cursor: help; }
     
     @media (max-width: 600px) {
+      /* Mobile header layout */
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 20px;
+        gap: 16px;
+      }
+      .logo-section {
+        width: 100%;
+      }
+      .logo-icon {
+        height: 44px;
+      }
+      .brand-name {
+        font-size: 1.2rem;
+      }
+      .tagline {
+        font-size: 0.85rem;
+      }
+      nav {
+        width: 100%;
+        justify-content: center;
+      }
+      nav button { padding: 6px 12px; font-size: 13px; }
+      
       .form-row { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, 1fr); }
       .book-actions { flex-direction: column; }
-      nav { gap: 6px; }
-      nav button { padding: 6px 12px; font-size: 13px; }
       .book-review { font-size: 1rem; }
       /* Mobile book card layout - rank centered at top, rating centered at bottom */
       .book-card { flex-wrap: wrap; position: relative; padding-top: 52px; }
@@ -126,12 +181,12 @@
 <body>
   <div id="app"><div class="loading">Loading...</div></div>
   <script>
-    // V1.3 - Pages Turned with warm brown book logo
+    // V1.7 - Pages Turned with new P icon header layout
     let books = [];
     let view = 'list';
-    let yearFilter = 'all-time'; // Changed default to all-time
+    let yearFilter = 'all-time';
     let editingBook = null;
-    let form = { title: '', author: '', year: '', cover: '', rating: null, review: '', dateRead: '', isbn: '', pageCount: null, format: 'physical', amazonUrl: '' };
+    let form = { title: '', author: '', year: '', cover: '', rating: null, review: '', dateRead: '', isbn: '', pageCount: null, format: 'physical' };
     let isbnInput = '';
     let loading = true;
     let error = '';
@@ -233,14 +288,14 @@
     }
 
     function resetForm() {
-      form = { title: '', author: '', year: '', cover: '', rating: null, review: '', dateRead: '', isbn: '', pageCount: null, format: 'physical', amazonUrl: '' };
+      form = { title: '', author: '', year: '', cover: '', rating: null, review: '', dateRead: '', isbn: '', pageCount: null, format: 'physical' };
       isbnInput = '';
       error = '';
     }
 
     function openAdd() { resetForm(); editingBook = null; view = 'edit'; render(); }
     function openEdit(book) {
-      form = { ...book, year: String(book.year || ''), rating: book.rating, pageCount: book.pageCount || null, format: book.format || 'physical', amazonUrl: book.amazonUrl || '' };
+      form = { ...book, year: String(book.year || ''), rating: book.rating, pageCount: book.pageCount || null, format: book.format || 'physical' };
       isbnInput = book.isbn || '';
       editingBook = book;
       view = 'edit';
@@ -269,7 +324,6 @@
       const authorEl = allInputs[1]; // Second is author
       const yearEl = allInputs[2]; // Third is year
       const coverEl = allInputs[3]; // Fourth is cover URL
-      const amazonUrlEl = allInputs[4]; // Fifth is Amazon URL
       
       const title = titleEl ? titleEl.value.trim() : '';
       if (!title) { error = 'Title required'; render(); return; }
@@ -277,7 +331,6 @@
       const author = authorEl ? authorEl.value.trim() : '';
       const year = yearEl ? parseInt(yearEl.value) || null : null;
       const cover = coverEl ? coverEl.value.trim() : '';
-      const amazonUrl = amazonUrlEl ? amazonUrlEl.value.trim() : '';
       const dateRead = dateReadInput ? dateReadInput.value : '';
       const pageCount = pageCountInput && pageCountInput.value.trim() !== '' ? parseInt(pageCountInput.value) : null;
       const rating = ratingInput && ratingInput.value.trim() !== '' ? parseInt(ratingInput.value) : null;
@@ -288,7 +341,6 @@
         author,
         year,
         cover,
-        amazonUrl,
         dateRead,
         pageCount,
         rating,
@@ -406,28 +458,32 @@
 
       let html = `
         <header>
-          <img src="logo.png" alt="Pages Turned" class="logo-image">
-          <p class="mission">The TL;DR of book reviews.</p>
+          <div class="logo-section">
+            <img src="icon.png" alt="Pages Turned" class="logo-icon">
+            <div class="brand-text">
+              <span class="brand-name">Pages Turned</span>
+              <span class="tagline">The TL;DR of book reviews.</span>
+            </div>
+          </div>
           <nav>
             <button class="${yearFilter === 'all-time' ? 'active' : ''}" onclick="setYear('all-time')">🏆 All Time</button>
             <button class="${yearFilter === 'current' ? 'active' : ''}" onclick="setYear('current')">Current Year</button>
-            <button class="${yearFilter === String(currentYear - 1) ? 'active' : ''}" onclick="setYear('${currentYear - 1}')">${currentYear - 1}</button>
-          </nav>`;
+            <button class="${yearFilter === String(currentYear - 1) ? 'active' : ''}" onclick="setYear('${currentYear - 1}')">${currentYear - 1}</button>`;
       
       // Add dropdown for older years if they exist
       if (olderYears.length > 0) {
         const dropdownLabel = isOlderYearSelected ? yearFilter : 'Older';
-        const dropdownHtml = `
+        html += `
             <div class="dropdown ${dropdownOpen ? 'active' : ''}">
               <button class="${isOlderYearSelected ? 'active' : ''}" onclick="toggleDropdown()">${dropdownLabel}</button>
               <div class="dropdown-content">
                 ${olderYears.map(y => `<button onclick="setYear('${y}')">${y}</button>`).join('')}
               </div>
             </div>`;
-        html = html.replace('</nav>', dropdownHtml + '\n          </nav>');
       }
       
       html += `
+          </nav>
         </header>
         <div class="container">
           <div class="top-bar">
@@ -452,7 +508,7 @@
             <div class="book-rank">#${i + 1}</div>
             <div class="book-cover">${book.cover ? `<img src="${book.cover}" onerror="this.parentElement.innerHTML=''">`  : ''}</div>
             <div class="book-info">
-              <div class="book-title">${book.amazonUrl ? `<a href="${book.amazonUrl}" target="_blank" rel="noopener">${book.title}</a>` : book.title}</div>
+              <div class="book-title">${book.title}</div>
               <p class="book-author">${book.author || ''}${book.year ? ` (${book.year})` : ''}</p>
               ${book.dateRead ? `<p class="book-date-read">${formatDateRead(book.dateRead)} ${getFormatEmoji(book.format || 'physical')}</p>` : ''}
               ${renderReview(book.review)}
@@ -528,10 +584,6 @@
             <div class="form-group">
               <label>Cover URL</label>
               <input type="text" value="${form.cover}" oninput="form.cover=this.value" placeholder="https://..." style="width:100%">
-            </div>
-            <div class="form-group">
-              <label>Amazon URL</label>
-              <input type="text" value="${form.amazonUrl}" oninput="form.amazonUrl=this.value" placeholder="https://www.amazon.com/dp/..." style="width:100%">
             </div>
             <div class="form-group">
               <label>Format</label>
