@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V1.7 - New header layout with P icon, favicon, and meta tags -->
+  <!-- V1.7.1 - Header constrained to content width, larger logo, tagline styling -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="icon.png">
@@ -30,14 +30,18 @@
     body { font-family: 'Inter', system-ui, sans-serif; background: #faf9f7; color: #2D3E50; line-height: 1.6; }
     .container { max-width: 900px; margin: 0 auto; padding: 8px 24px 24px 24px; }
     
-    /* New Header Layout - V1.7 */
+    /* New Header Layout - V1.7.1 */
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 32px;
-      border-bottom: 1px solid #e8e6e3;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 24px;
       gap: 24px;
+    }
+    .header-border {
+      border-bottom: 1px solid #e8e6e3;
     }
     .logo-section {
       display: flex;
@@ -45,7 +49,7 @@
       gap: 16px;
     }
     .logo-icon {
-      height: 52px;
+      height: 60px;
       width: auto;
     }
     .brand-text {
@@ -60,9 +64,8 @@
       color: #2D3E50;
     }
     .tagline {
-      color: #666;
+      color: #555;
       font-size: 0.9rem;
-      font-style: italic;
     }
     
     nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
@@ -150,7 +153,7 @@
         width: 100%;
       }
       .logo-icon {
-        height: 44px;
+        height: 50px;
       }
       .brand-name {
         font-size: 1.2rem;
@@ -181,7 +184,7 @@
 <body>
   <div id="app"><div class="loading">Loading...</div></div>
   <script>
-    // V1.7 - Pages Turned with new P icon header layout
+    // V1.7.1 - Pages Turned with constrained header width
     let books = [];
     let view = 'list';
     let yearFilter = 'all-time';
@@ -457,6 +460,7 @@
       const isOlderYearSelected = olderYears.includes(yearFilter);
 
       let html = `
+        <div class="header-border">
         <header>
           <div class="logo-section">
             <img src="icon.png" alt="Pages Turned" class="logo-icon">
@@ -485,6 +489,7 @@
       html += `
           </nav>
         </header>
+        </div>
         <div class="container">
           <div class="top-bar">
             ${isAdmin ? '<button class="btn btn-secondary btn-small" onclick="exportData()">💾 Backup Data</button>' : '<div></div>'}
