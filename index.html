@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V1.7.9 - Increased spacing between brand name and tagline -->
+  <!-- V1.8.0 - Mobile spacing improvements between header/nav/stats/rankings -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -170,8 +170,14 @@
       nav {
         width: 100%;
         justify-content: center;
+        margin-top: 8px;
       }
       nav button { padding: 8px 14px; font-size: 14px; }
+      
+      /* Mobile spacing between sections */
+      .top-bar { margin-bottom: 20px; }
+      .stats { margin-bottom: 32px; }
+      .section-title { margin-top: 8px; }
       
       .form-row { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, 1fr); }
