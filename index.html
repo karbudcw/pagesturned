@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V1.8.7 - Mobile: more space above/below rank -->
+  <!-- V1.9.0 - Mobile: Option 3 header (icon on top, stacked text, dropdown nav) -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -74,6 +74,7 @@
     nav button { background: none; border: 1px solid #ddd; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; font-family: inherit; transition: all 0.2s; }
     nav button:hover { border-color: #999; }
     nav button.active { background: #2D3E50; color: #fff; border-color: #2D3E50; font-weight: 500; }
+    .mobile-nav { display: none; position: relative; }
     .btn { padding: 10px 20px; background: #2D3E50; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-family: inherit; }
     .btn:hover { background: #3d4e60; }
     .btn-secondary { background: #f5f5f5; color: #2D3E50; border: 1px solid #ddd; }
@@ -146,33 +147,62 @@
     .stat-last-update { position: relative; cursor: help; }
     
     @media (max-width: 600px) {
-      /* Mobile header layout - centered as a unit, text still left-aligned */
+      /* Mobile header layout - Option 3: icon on top, text stacked below, dropdown nav */
       header {
         flex-direction: column;
         align-items: center;
         padding: 20px 20px;
-        gap: 20px;
+        gap: 12px;
       }
       .logo-section {
-        width: auto;
-        gap: 20px;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
       }
       .logo-icon {
-        height: 110px;
+        height: 70px;
+      }
+      .brand-text {
+        text-align: center;
       }
       .brand-name {
-        font-size: 2.4rem;
-        margin-bottom: 6px;
+        font-size: 1.5rem;
+        margin-bottom: 2px;
       }
       .tagline {
-        font-size: 1.3rem;
+        font-size: 0.85rem;
       }
-      nav {
-        width: 100%;
-        justify-content: center;
-        margin-top: 8px;
+      
+      /* Hide regular nav on mobile, show mobile dropdown */
+      nav.desktop-nav {
+        display: none;
       }
-      nav button { padding: 8px 14px; font-size: 14px; }
+      .mobile-nav {
+        display: flex;
+      }
+      .mobile-nav-btn {
+        background: #2D3E50;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: inherit;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .mobile-nav-btn::after {
+        content: '▼';
+        font-size: 10px;
+      }
+      .mobile-nav .dropdown-content {
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 160px;
+      }
       
       /* Mobile spacing between sections */
       .top-bar { margin-bottom: 20px; }
@@ -505,6 +535,13 @@
       // Check if current yearFilter is an older year (for dynamic button label)
       const isOlderYearSelected = olderYears.includes(yearFilter);
 
+      // Get mobile nav label based on current filter
+      const getMobileNavLabel = () => {
+        if (yearFilter === 'all-time') return `${EMOJI.trophy} All Time`;
+        if (yearFilter === 'current') return `${currentYear}`;
+        return yearFilter;
+      };
+
       let html = `
         <div class="header-border">
         <header>
@@ -515,12 +552,12 @@
               <span class="tagline">The TL;DR of book reviews</span>
             </div>
           </div>
-          <nav>
+          <nav class="desktop-nav">
             <button class="${yearFilter === 'all-time' ? 'active' : ''}" onclick="setYear('all-time')">${EMOJI.trophy} All Time</button>
             <button class="${yearFilter === 'current' ? 'active' : ''}" onclick="setYear('current')">Current Year</button>
             <button class="${yearFilter === String(currentYear - 1) ? 'active' : ''}" onclick="setYear('${currentYear - 1}')">${currentYear - 1}</button>`;
       
-      // Add dropdown for older years if they exist
+      // Add dropdown for older years if they exist (desktop)
       if (olderYears.length > 0) {
         const dropdownLabel = isOlderYearSelected ? yearFilter : 'Older';
         html += `
@@ -534,6 +571,15 @@
       
       html += `
           </nav>
+          <div class="mobile-nav dropdown ${dropdownOpen ? 'active' : ''}">
+            <button class="mobile-nav-btn" onclick="toggleDropdown()">${getMobileNavLabel()}</button>
+            <div class="dropdown-content">
+              <button onclick="setYear('all-time')">${EMOJI.trophy} All Time</button>
+              <button onclick="setYear('current')">Current Year</button>
+              <button onclick="setYear('${currentYear - 1}')">${currentYear - 1}</button>
+              ${olderYears.map(y => `<button onclick="setYear('${y}')">${y}</button>`).join('')}
+            </div>
+          </div>
         </header>
         </div>
         <div class="container">
