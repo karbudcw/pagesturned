@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V1.9.9 - New ranking style, fix mobile dropdown arrow -->
+  <!-- V2.0.0 - New rating colors, clickable covers, mobile header size, alignment fixes, tooltip format -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -88,11 +88,12 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .card { background: #fff; border: 1px solid #e8e6e3; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
     .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(45, 62, 80, 0.15); transition: all 0.3s ease; }
-    .book-card { display: flex; gap: 16px; }
+    .book-card { display: flex; gap: 16px; align-items: flex-start; }
     .book-cover { width: 65px; height: 100px; background: #eee; border-radius: 4px; flex-shrink: 0; overflow: hidden; margin: 0 4px; }
+    .book-cover a { display: block; width: 100%; height: 100%; }
     .book-cover img { width: 100%; height: 100%; object-fit: cover; }
     .book-info { flex: 1; min-width: 0; }
-    .book-title { font-family: 'Libre Baskerville', serif; font-size: 1.15rem; font-weight: 700; color: #2D3E50; margin-bottom: 6px; }
+    .book-title { font-family: 'Libre Baskerville', serif; font-size: 1.15rem; font-weight: 700; color: #2D3E50; margin-bottom: 6px; margin-top: 0; }
     .book-title-link { color: #2D3E50; text-decoration: none; }
     .book-title-link:hover { text-decoration: underline; }
     .book-author { color: #888; font-size: 0.85rem; margin-bottom: 4px; }
@@ -142,7 +143,7 @@
       text-align: center; 
       line-height: 1;
       display: flex;
-      align-items: baseline;
+      align-items: flex-start;
       justify-content: center;
       font-family: 'Architects Daughter', cursive;
       font-size: 1.8rem;
@@ -189,17 +190,17 @@
         gap: 4px;
       }
       .logo-icon {
-        height: 100px;
+        height: 120px;
       }
       .brand-text {
         text-align: center;
       }
       .brand-name {
-        font-size: 2.2rem;
+        font-size: 2.5rem;
         margin-bottom: 4px;
       }
       .tagline {
-        font-size: 1.1rem;
+        font-size: 1.25rem;
       }
       
       /* Hide regular nav on mobile, show mobile dropdown */
@@ -225,7 +226,7 @@
         gap: 6px;
       }
       .mobile-nav-btn::after {
-        content: '▼';
+        content: 'â–¼';
         font-size: 10px;
       }
       .mobile-nav .dropdown-content {
@@ -258,7 +259,7 @@
         width: 100%;
         text-align: center;
         margin-right: 0;
-        font-size: 1.6rem;
+        font-size: 2.0rem;
       }
       .book-card .book-cover { 
         width: 55px; 
@@ -300,7 +301,7 @@
       headphones: '\u{1F3A7}',
       floppy: '\u{1F4BE}',
       dash: '\u{2014}',
-      leftArrow: '←'
+      leftArrow: 'â†'
     };
 
     // Check for admin mode via URL parameter with password
@@ -312,24 +313,31 @@
 
     const getColor = r => {
       if (r === null) return '#ccc';
-      // Greens: 80-100 (darker = higher)
-      if (r >= 95) return '#1B5E20';
+      // Greens: 70-100 (lighter = lower, darker = higher)
+      if (r >= 95) return '#1B5E20';  // darkest green
       if (r >= 90) return '#2E7D32';
       if (r >= 85) return '#388E3C';
       if (r >= 80) return '#43A047';
-      // Yellows: 70-79 (darker = lower)
-      if (r >= 75) return '#FBC02D';
-      if (r >= 70) return '#F9A825';
-      // Oranges: 60-69 (darker = lower)
-      if (r >= 65) return '#FB8C00';
-      if (r >= 60) return '#EF6C00';
-      // Reds: 0-59 (darker = lower)
-      if (r >= 50) return '#EF5350';
-      if (r >= 40) return '#F44336';
-      if (r >= 30) return '#E53935';
-      if (r >= 20) return '#D32F2F';
-      if (r >= 10) return '#C62828';
-      return '#B71C1C';
+      if (r >= 75) return '#66BB6A';
+      if (r >= 70) return '#81C784';  // lightest green
+      // Yellows: 60-69 (lighter = higher, darker = lower)
+      if (r >= 68) return '#FFF176';  // lightest yellow
+      if (r >= 66) return '#FFEE58';
+      if (r >= 64) return '#FFEB3B';
+      if (r >= 62) return '#FDD835';
+      if (r >= 60) return '#FBC02D';  // darkest yellow
+      // Oranges: 50-59 (lighter = higher, darker = lower)
+      if (r >= 58) return '#FFCC80';  // lightest orange
+      if (r >= 56) return '#FFB74D';
+      if (r >= 54) return '#FFA726';
+      if (r >= 52) return '#FF9800';
+      if (r >= 50) return '#F57C00';  // darkest orange
+      // Reds: 0-49 (lighter = higher, darker = lower)
+      if (r >= 40) return '#EF9A9A';  // lightest red
+      if (r >= 30) return '#E57373';
+      if (r >= 20) return '#EF5350';
+      if (r >= 10) return '#F44336';
+      return '#C62828';  // darkest red
     };
 
     const getYear = d => d ? d.slice(0, 4) : 'Unknown';
@@ -628,7 +636,7 @@
             <div><div class="stat-number">${filtered.length}</div><div class="stat-label">Books</div></div>
             <div><div class="stat-number">${totalPages.toLocaleString()}</div><div class="stat-label">Pages</div></div>
             <div class="stat-with-tooltip"><div class="stat-number">${avg}</div><div class="stat-label">Avg Rating</div></div>
-            <div class="stat-last-update" ${mostRecent ? `data-book="${mostRecent.title.replace(/"/g, '&quot;')}"` : ''}><div class="stat-number">${mostRecent && mostRecent.dateRead ? (() => { const d = new Date(mostRecent.dateRead); return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${String(d.getFullYear()).slice(-2)}`; })() : EMOJI.dash}</div><div class="stat-label">Last Update</div></div>
+            <div class="stat-last-update" ${mostRecent ? `data-book="${mostRecent.title.replace(/"/g, '&quot;')} by ${(mostRecent.author || 'Unknown').replace(/"/g, '&quot;')}"` : ''}><div class="stat-number">${mostRecent && mostRecent.dateRead ? (() => { const d = new Date(mostRecent.dateRead); return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${String(d.getFullYear()).slice(-2)}`; })() : EMOJI.dash}</div><div class="stat-label">Last Update</div></div>
           </div>`;
 
       // Add section title with year label
@@ -641,9 +649,14 @@
           const titleHtml = book.amazonUrl 
             ? `<a href="${book.amazonUrl}" target="_blank" rel="noopener" class="book-title-link">${book.title}</a>`
             : book.title;
+          const coverHtml = book.cover 
+            ? (book.amazonUrl 
+              ? `<a href="${book.amazonUrl}" target="_blank" rel="noopener"><img src="${book.cover}" onerror="this.parentElement.parentElement.innerHTML=''"></a>`
+              : `<img src="${book.cover}" onerror="this.parentElement.innerHTML=''">`
+            ) : '';
           html += `<div class="card book-card">
             <div class="book-rank"><span class="hash">#</span><span class="num">${i + 1}</span></div>
-            <div class="book-cover">${book.cover ? `<img src="${book.cover}" onerror="this.parentElement.innerHTML=''">`  : ''}</div>
+            <div class="book-cover">${coverHtml}</div>
             <div class="book-info">
               <div class="book-title">${titleHtml}</div>
               <p class="book-author">${book.author || ''}${book.year ? ` (${book.year})` : ''}</p>
