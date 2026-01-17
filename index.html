@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V1.9.8 - ISBN fetches Amazon URL & page count, default date today, fix form saving -->
+  <!-- V1.9.9 - New ranking style, fix mobile dropdown arrow -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -25,7 +25,7 @@
   <meta name="description" content="The TL;DR of book reviews. One-sentence reviews with a 1-100 rating system.">
   <meta name="theme-color" content="#2D3E50">
   
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', system-ui, sans-serif; background: #faf9f7; color: #2D3E50; line-height: 1.6; }
@@ -136,7 +136,24 @@
     .stat-number { font-family: 'Libre Baskerville', serif; font-size: 1.75rem; color: #2D3E50; }
     .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
     .section-title { font-family: 'Libre Baskerville', serif; font-size: 1.35rem; font-weight: 500; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e8e6e3; color: #2D3E50; }
-    .book-rank { font-size: 14px; color: #999; width: 28px; flex-shrink: 0; text-align: center; }
+    .book-rank { 
+      width: 56px; 
+      flex-shrink: 0; 
+      text-align: center; 
+      line-height: 1; 
+      font-style: italic;
+    }
+    .book-rank .hash {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.1rem;
+      color: #bbb;
+    }
+    .book-rank .num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #888;
+    }
     .format-selector { display: flex; gap: 8px; }
     .format-btn { padding: 8px 16px; border: 2px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
     .format-btn:hover { border-color: #999; }
@@ -208,7 +225,7 @@
         gap: 6px;
       }
       .mobile-nav-btn::after {
-        content: 'â–¼';
+        content: '▼';
         font-size: 10px;
       }
       .mobile-nav .dropdown-content {
@@ -235,13 +252,18 @@
       }
       .book-card .book-rank { 
         position: absolute; 
-        top: 20px; 
+        top: 16px; 
         left: 0;
         right: 0;
         width: 100%;
         text-align: center;
         margin-right: 0; 
-        font-weight: 600; 
+      }
+      .book-card .book-rank .hash {
+        font-size: 1.8rem;
+      }
+      .book-card .book-rank .num {
+        font-size: 1.5rem;
       }
       .book-card .book-cover { 
         width: 55px; 
@@ -625,7 +647,7 @@
             ? `<a href="${book.amazonUrl}" target="_blank" rel="noopener" class="book-title-link">${book.title}</a>`
             : book.title;
           html += `<div class="card book-card">
-            <div class="book-rank">#${i + 1}</div>
+            <div class="book-rank"><span class="hash">#</span><span class="num">${i + 1}</span></div>
             <div class="book-cover">${book.cover ? `<img src="${book.cover}" onerror="this.parentElement.innerHTML=''">`  : ''}</div>
             <div class="book-info">
               <div class="book-title">${titleHtml}</div>
