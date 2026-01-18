@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V2.0 - Clickable covers, mobile header size, alignment fixes, tooltip format, card spacing, distribution chart with gray bg -->
+  <!-- V2.1 - Fixed mobile dropdown arrow encoding, increased mobile rank size, review alignment to cover edge, dynamic distribution title -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -99,7 +99,7 @@
     .book-author { color: #888; font-size: 0.85rem; margin-bottom: 4px; }
     .book-date-read { color: #999; font-size: 0.85rem; margin-bottom: 8px; }
     
-    /* V1.9.7 Review Styling - Navy quotation mark accent */
+    /* V2.1 Review Styling - Navy quotation mark accent, aligned with cover edge */
     .book-review {
       font-family: 'Libre Baskerville', serif;
       font-size: 1.05rem;
@@ -108,6 +108,7 @@
       margin-top: 12px;
       position: relative;
       padding-left: 24px;
+      margin-left: -85px; /* Pull left to align with cover edge (cover width 65px + gap 16px + cover margin 4px) */
     }
     .book-review::before {
       content: '"';
@@ -236,10 +237,6 @@
         align-items: center;
         gap: 6px;
       }
-      .mobile-nav-btn::after {
-        content: '\u25BC';
-        font-size: 10px;
-      }
       .mobile-nav .dropdown-content {
         left: 50%;
         transform: translateX(-50%);
@@ -254,7 +251,10 @@
       .form-row { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, 1fr); }
       .book-actions { flex-direction: column; }
-      .book-review { font-size: 1rem; }
+      .book-review { 
+        font-size: 1rem; 
+        margin-left: 0; /* Reset for mobile layout */
+      }
       
       /* Mobile book card layout - rank centered at top of card */
       .book-card { 
@@ -271,7 +271,7 @@
         text-align: center;
         margin-right: 0;
         margin-bottom: 12px;
-        font-size: 2.0rem;
+        font-size: 2.2rem;
       }
       .book-card .book-cover { 
         width: 55px; 
@@ -313,7 +313,8 @@
       headphones: '\u{1F3A7}',
       floppy: '\u{1F4BE}',
       dash: '\u{2014}',
-      leftArrow: '\u2190'
+      leftArrow: '\u2190',
+      downArrow: '\u25BC'
     };
 
     // Check for admin mode via URL parameter with password
@@ -563,6 +564,13 @@
       if (yearFilter === 'current') return `${currentYear} Rankings`;
       return `${yearFilter} Rankings`;
     }
+    
+    function getDistributionTitle() {
+      const currentYear = new Date().getFullYear();
+      if (yearFilter === 'all-time') return 'All-Time Rating Distribution';
+      if (yearFilter === 'current') return `${currentYear} Rating Distribution`;
+      return `${yearFilter} Rating Distribution`;
+    }
 
     function renderList() {
       if (loading) return '<div class="loading">Loading...</div>';
@@ -587,9 +595,10 @@
 
       // Get mobile nav label based on current filter
       const getMobileNavLabel = () => {
-        if (yearFilter === 'all-time') return `${EMOJI.trophy} All Time`;
-        if (yearFilter === 'current') return `${currentYear}`;
-        return yearFilter;
+        const arrow = ' ' + EMOJI.downArrow;
+        if (yearFilter === 'all-time') return `${EMOJI.trophy} All Time${arrow}`;
+        if (yearFilter === 'current') return `${currentYear}${arrow}`;
+        return `${yearFilter}${arrow}`;
       };
 
       let html = `
@@ -699,7 +708,7 @@
       
       const distributionChart = `
         <div class="distribution-chart">
-          <div class="distribution-title">Rating Distribution</div>
+          <div class="distribution-title">${getDistributionTitle()}</div>
           <div class="chart-container">
             ${distribution.map(d => `
               <div class="chart-bar-group">
