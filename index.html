@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V2.18 - Mobile: review clears cover with min-height and margin-top auto -->
+  <!-- V2.19 - Mobile: quote mark position adjusted for padding -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -255,6 +255,9 @@
         margin-top: 20px;
         margin-left: calc(-1 * (55px + 16px)); /* Pull left to align with cover: -(cover width + gap) */
         width: calc(100% + 55px + 16px); /* Expand width to compensate */
+      }
+      .book-review::before {
+        top: 16px; /* Adjust for padding-top on mobile */
       }
       
       /* Mobile book card layout - rank centered at top of card */
