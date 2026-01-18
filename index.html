@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V2.15 - Reverted mobile styles to simpler working version -->
+  <!-- V2.16 - Mobile: review aligned with cover left edge -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -253,6 +253,8 @@
       .book-review { 
         font-size: 1rem;
         margin-top: 12px;
+        margin-left: calc(-1 * (55px + 16px)); /* Pull left to align with cover: -(cover width + gap) */
+        width: calc(100% + 55px + 16px); /* Expand width to compensate */
       }
       
       /* Mobile book card layout - rank centered at top of card */
