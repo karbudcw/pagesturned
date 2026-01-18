@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V2.5 - Desktop review aligned with title, mobile rating circle below review -->
+  <!-- V2.6 - Fixed desktop review alignment with title, fixed mobile rating circle size -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -99,17 +99,17 @@
     .book-author { color: #888; font-size: 0.85rem; margin-bottom: 4px; }
     .book-date-read { color: #999; font-size: 0.85rem; margin-bottom: 8px; }
     
-    /* V2.5 Review Styling - Full width below cover/info row */
+    /* V2.6 Review Styling - Aligned with title on desktop */
     .book-review {
       font-family: 'Libre Baskerville', serif;
       font-size: 1.05rem;
       color: #2D3E50;
       line-height: 1.5;
-      margin-top: 8px;
+      margin-top: 4px;
       position: relative;
       padding-left: 24px;
-      margin-left: 145px; /* Align with title: rank (56px) + gap (16px) + cover (65px) + cover margin (4px) + gap (4px) */
-      flex-basis: calc(100% - 145px);
+      margin-left: 149px; /* Align with title: rank (56px) + gap (16px) + cover (65px) + cover margin (8px) + gap (4px) */
+      flex-basis: calc(100% - 149px);
       order: 10; /* Push to end of flex container */
     }
     .book-review::before {
@@ -258,9 +258,7 @@
         margin-left: 0;
         flex-basis: 100%;
         order: 10;
-      }
-      .book-card .rating-circle {
-        order: 20; /* After review on mobile */
+        margin-top: 12px;
       }
       
       /* Mobile book card layout - rank centered at top of card */
@@ -290,10 +288,8 @@
         margin-top: 0;
       }
       .book-card .rating-circle { 
-        margin: 12px auto 0; 
-        flex-basis: 100%;
-        display: flex;
-        justify-content: center;
+        order: 20; /* After review on mobile */
+        margin: 12px auto 0;
       }
       .rating-legend { flex-direction: column; }
     }
