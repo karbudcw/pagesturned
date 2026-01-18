@@ -90,14 +90,16 @@
     .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(45, 62, 80, 0.15); transition: all 0.3s ease; }
     .book-card { display: flex; flex-direction: column; gap: 20px; }
     .book-card-row1 { display: flex; align-items: flex-start; }
-    .book-cover-wrapper { display: flex; flex-direction: column; flex-shrink: 0; }
-    .book-card-row2 { margin-top: 20px; margin-right: 0; padding-right: 60px; }
+    .book-card-row2 { margin-left: 55px; margin-right: 60px; }
     .book-card-row1 .book-rank { 
-      margin-right: 24px;
+      width: 55px;
+      text-align: right;
+      padding-right: 24px;
       line-height: 1;
       font-family: 'Architects Daughter', cursive;
       font-size: 1.8rem;
       color: #888;
+      flex-shrink: 0;
     }
     .book-cover { width: 65px; height: 100px; background: #eee; border-radius: 4px; flex-shrink: 0; overflow: hidden; margin-right: 20px; }
     .book-cover a { display: block; width: 100%; height: 100%; }
@@ -109,7 +111,7 @@
     .book-author { color: #888; font-size: 0.85rem; margin-bottom: 4px; }
     .book-date-read { color: #999; font-size: 0.85rem; margin-bottom: 0; }
     
-    /* V3.1 Review Styling - In row2 under cover, aligned with cover left edge */
+    /* V3.0 Review Styling - In its own row on desktop */
     .book-review {
       font-family: 'Libre Baskerville', serif;
       font-size: 1.05rem;
@@ -268,12 +270,10 @@
         flex-wrap: wrap;
         gap: 16px;
       }
-      .book-cover-wrapper {
-        display: contents;
-      }
       .book-card-row2 {
+        margin-left: 0;
+        margin-right: 0;
         margin-top: 12px;
-        padding-right: 0;
       }
       .book-card .book-rank { 
         position: absolute; 
@@ -300,9 +300,6 @@
       .book-card .rating-circle { 
         margin: 12px auto 0;
         margin-left: auto;
-      }
-      .book-card .book-review {
-        margin-top: 0;
       }
       .rating-legend { flex-direction: column; }
     }
@@ -684,13 +681,11 @@
               ? `<a href="${book.amazonUrl}" target="_blank" rel="noopener"><img src="${book.cover}" onerror="this.parentElement.parentElement.innerHTML=''"></a>`
               : `<img src="${book.cover}" onerror="this.parentElement.innerHTML=''">`
             ) : '';
+          const reviewHtml = book.review ? `<div class="book-card-row2">${renderReview(book.review)}</div>` : '';
           html += `<div class="card book-card">
             <div class="book-card-row1">
               <div class="book-rank"><span class="hash">#</span><span class="num">${i + 1}</span></div>
-              <div class="book-cover-wrapper">
               <div class="book-cover">${coverHtml}</div>
-              ${book.review ? `<div class="book-card-row2">${renderReview(book.review)}</div>` : ''}
-            </div>
               <div class="book-info">
                 <div class="book-title">${titleHtml}</div>
                 <p class="book-author">${book.author || ''}${book.year ? ` (${book.year})` : ''}</p>
@@ -698,6 +693,7 @@
               </div>
               ${ratingCircle(book.rating)}
             </div>
+            ${reviewHtml}
             ${isAdmin ? `<div class="book-actions">
               <button class="btn btn-secondary btn-small" onclick="openEdit(books.find(b=>b.id===${book.id}))">Edit</button>
               <button class="btn btn-danger btn-small" onclick="deleteBook(${book.id})">Delete</button>
