@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V2.14 - Mobile: review aligned with cover, rating circle centered -->
+  <!-- V2.15 - Reverted mobile styles to simpler working version -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -250,10 +250,14 @@
       .form-row { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, 1fr); }
       .book-actions { flex-direction: column; }
+      .book-review { 
+        font-size: 1rem;
+        margin-top: 12px;
+      }
       
-      /* Mobile book card layout */
+      /* Mobile book card layout - rank centered at top of card */
       .book-card { 
-        display: block; /* Change from flex to block for simpler layout */
+        flex-wrap: wrap; 
         position: relative; 
         padding-top: 64px;
       }
@@ -264,34 +268,22 @@
         right: 0;
         width: 100%;
         text-align: center;
+        margin-right: 0;
+        margin-bottom: 12px;
         font-size: 2.2rem;
       }
       .book-card .book-cover { 
         width: 55px; 
         height: 85px; 
-        float: left;
-        margin-right: 16px;
-        margin-bottom: 12px;
+        margin-top: 0;
       }
       .book-card .book-info { 
-        overflow: hidden; /* Contain floated cover */
-      }
-      .book-card .book-info .book-review {
-        font-size: 1rem;
-        margin-top: 12px;
-        clear: both; /* Start below the floated cover */
-        margin-left: -71px; /* Align with cover left edge: -(cover 55px + margin 16px) */
-        padding-left: 24px;
-        padding-right: 0;
+        flex: 1;
+        min-width: calc(100% - 80px);
+        margin-top: 0;
       }
       .book-card .rating-circle { 
-        display: flex;
-        align-items: center;
-        justify-content: center;
         margin: 12px auto 0;
-        clear: both;
-        width: 44px;
-        height: 44px;
       }
       .rating-legend { flex-direction: column; }
     }
