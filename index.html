@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V2.8 - Review text aligned with title (margin-left: 161px) -->
+  <!-- V2.9 - Review inside book-info for consistent vertical spacing -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -88,7 +88,7 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .card { background: #fff; border: 1px solid #e8e6e3; border-radius: 8px; padding: 20px; margin-bottom: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
     .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(45, 62, 80, 0.15); transition: all 0.3s ease; }
-    .book-card { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+    .book-card { display: flex; gap: 16px; align-items: flex-start; }
     .book-cover { width: 65px; height: 100px; background: #eee; border-radius: 4px; flex-shrink: 0; overflow: hidden; margin: 0 4px; }
     .book-cover a { display: block; width: 100%; height: 100%; }
     .book-cover img { width: 100%; height: 100%; object-fit: cover; }
@@ -99,18 +99,16 @@
     .book-author { color: #888; font-size: 0.85rem; margin-bottom: 4px; }
     .book-date-read { color: #999; font-size: 0.85rem; margin-bottom: 0; }
     
-    /* V2.8 Review Styling - Text aligned with title on desktop */
+    /* V2.9 Review Styling - Inside book-info for consistent vertical spacing */
     .book-review {
       font-family: 'Libre Baskerville', serif;
       font-size: 1.05rem;
       color: #2D3E50;
       line-height: 1.5;
-      margin-top: 0;
+      margin-top: 10px;
       position: relative;
       padding-left: 24px;
-      margin-left: 161px; /* Align quote mark with cover edge, text with title */
-      flex-basis: calc(100% - 161px);
-      order: 10; /* Push to end of flex container */
+      margin-left: -24px; /* Pull left so quote mark hangs in margin */
     }
     .book-review::before {
       content: '"';
@@ -255,9 +253,7 @@
       .book-actions { flex-direction: column; }
       .book-review { 
         font-size: 1rem;
-        margin-left: 0;
-        flex-basis: 100%;
-        order: 10;
+        margin-left: -24px;
         margin-top: 12px;
       }
       
@@ -284,12 +280,21 @@
         margin-top: 0;
       }
       .book-card .book-info { 
-        min-width: calc(100% - 130px);
+        flex: 1;
+        min-width: calc(100% - 80px);
         margin-top: 0;
       }
       .book-card .rating-circle { 
-        order: 20; /* After review on mobile */
-        margin: 12px auto 0;
+        order: 20;
+        flex-basis: 100%;
+        display: flex;
+        justify-content: center;
+        margin: 12px 0 0 0;
+      }
+      .book-card .rating-circle > div,
+      .book-card > .rating-circle {
+        width: 44px;
+        height: 44px;
       }
       .rating-legend { flex-direction: column; }
     }
@@ -680,13 +685,13 @@
               <div class="book-title">${titleHtml}</div>
               <p class="book-author">${book.author || ''}${book.year ? ` (${book.year})` : ''}</p>
               ${book.dateRead ? `<p class="book-date-read">${formatDateRead(book.dateRead)} ${getFormatEmoji(book.format || 'physical')}</p>` : ''}
+              ${renderReview(book.review)}
             </div>
             ${ratingCircle(book.rating)}
             ${isAdmin ? `<div class="book-actions">
               <button class="btn btn-secondary btn-small" onclick="openEdit(books.find(b=>b.id===${book.id}))">Edit</button>
               <button class="btn btn-danger btn-small" onclick="deleteBook(${book.id})">Delete</button>
             </div>` : ''}
-            ${renderReview(book.review)}
           </div>`;
         });
       }
