@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V3.1 - Desktop: two-row card layout, 760px max-width, 3-button nav, balanced spacing -->
+  <!-- V3.2 - Desktop: CSS Grid 4-column card layout, centered rank/rating, 760px max-width -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -88,20 +88,48 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .card { background: #fff; border: 1px solid #e8e6e3; border-radius: 8px; padding: 24px; margin-top: 20px; margin-bottom: 36px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); max-width: 760px; }
     .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(45, 62, 80, 0.15); transition: all 0.3s ease; }
-    .book-card { display: flex; flex-direction: column; gap: 20px; }
-    .book-card-row1 { display: flex; align-items: flex-start; }
-    .book-card-row2 { margin-left: 70px; margin-right: 60px; }
-    .book-card-row1 .book-rank { 
-      width: 70px;
-      text-align: right;
-      padding-right: 20px;
+    
+    /* V3.2 Desktop: CSS Grid 4-column layout for book cards */
+    .book-card-grid {
+      display: grid;
+      grid-template-columns: 70px auto 1fr 60px;
+      grid-template-rows: auto auto;
+      align-items: start;
+      column-gap: 20px;
+      row-gap: 20px;
+    }
+    .book-card-grid .book-rank {
+      grid-column: 1;
+      grid-row: 1;
+      justify-self: center;
       line-height: 1;
       font-family: 'Architects Daughter', cursive;
       font-size: 1.8rem;
-      color: #888;
-      flex-shrink: 0;
     }
-    .book-cover { width: 65px; height: 100px; background: #eee; border-radius: 4px; flex-shrink: 0; overflow: hidden; margin-right: 20px; }
+    .book-card-grid .book-cover {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .book-card-grid .book-info {
+      grid-column: 3;
+      grid-row: 1;
+    }
+    .book-card-grid .rating-circle {
+      grid-column: 4;
+      grid-row: 1;
+      justify-self: center;
+    }
+    .book-card-grid .book-review {
+      grid-column: 2 / 4;
+      grid-row: 2;
+      margin-top: 0;
+    }
+    .book-card-grid .book-actions {
+      grid-column: 1 / -1;
+      grid-row: 3;
+    }
+    
+    .book-cover { width: 65px; height: 100px; background: #eee; border-radius: 4px; flex-shrink: 0; overflow: hidden; }
     .book-cover a { display: block; width: 100%; height: 100%; }
     .book-cover img { width: 100%; height: 100%; object-fit: cover; }
     .book-info { flex: 1; min-width: 0; }
@@ -134,7 +162,7 @@
     }
     
     .book-actions { display: flex; gap: 8px; align-items: flex-start; }
-    .rating-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; position: relative; cursor: help; margin-left: 16px; }
+    .rating-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; position: relative; cursor: help; }
     .rating-circle:hover::after { content: '1-100 scale'; position: absolute; bottom: -32px; left: 50%; transform: translateX(-50%); background: #2D3E50; color: white; padding: 4px 12px; border-radius: 4px; font-size: 12px; white-space: nowrap; z-index: 100; }
     .rating-unrated { background: #ccc; font-size: 11px; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-top: 0; flex-wrap: wrap; gap: 12px; }
@@ -255,51 +283,45 @@
         margin-top: 12px;
       }
       
-      /* Mobile book card layout - override desktop two-row, keep original mobile layout */
+      /* Mobile book card layout - override desktop grid */
       .card.book-card {
         max-width: 100%;
         padding: 20px;
         padding-top: 64px;
       }
-      .book-card { 
+      .book-card-grid {
         display: block;
-        position: relative; 
+        position: relative;
       }
-      .book-card-row1 {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-      }
-      .book-card-row2 {
-        margin-left: 0;
-        margin-right: 0;
-        margin-top: 12px;
-      }
-      .book-card .book-rank { 
+      .book-card-grid .book-rank { 
         position: absolute; 
-        top: 16px; 
+        top: -48px; 
         left: 0;
         right: 0;
         width: 100%;
         text-align: center;
-        margin-right: 0;
-        margin-bottom: 12px;
         font-size: 2.2rem;
       }
-      .book-card .book-cover { 
+      .book-card-grid .book-cover { 
         width: 55px; 
         height: 85px; 
-        margin-top: 0;
+        float: left;
         margin-right: 16px;
+        margin-bottom: 12px;
       }
-      .book-card .book-info { 
-        flex: 1;
-        min-width: calc(100% - 80px);
-        margin-top: 0;
+      .book-card-grid .book-info { 
+        overflow: hidden;
       }
-      .book-card .rating-circle { 
+      .book-card-grid .rating-circle { 
+        clear: both;
         margin: 12px auto 0;
-        margin-left: auto;
+      }
+      .book-card-grid .book-review {
+        clear: both;
+        margin-top: 12px;
+      }
+      .book-card-grid .book-actions {
+        margin-top: 16px;
       }
       .rating-legend { flex-direction: column; }
     }
@@ -536,8 +558,9 @@
     }
 
     // V1.2 - Simple review rendering
-    function renderReview(review) {
+    function renderReview(review, rawText = false) {
       if (!review) return '';
+      if (rawText) return review;
       return `<p class="book-review">${review}</p>`;
     }
 
@@ -681,9 +704,9 @@
               ? `<a href="${book.amazonUrl}" target="_blank" rel="noopener"><img src="${book.cover}" onerror="this.parentElement.parentElement.innerHTML=''"></a>`
               : `<img src="${book.cover}" onerror="this.parentElement.innerHTML=''">`
             ) : '';
-          const reviewHtml = book.review ? `<div class="book-card-row2">${renderReview(book.review)}</div>` : '';
+          const reviewHtml = book.review ? `<div class="book-review">${renderReview(book.review, true)}</div>` : '';
           html += `<div class="card book-card">
-            <div class="book-card-row1">
+            <div class="book-card-grid">
               <div class="book-rank"><span class="hash">#</span><span class="num">${i + 1}</span></div>
               <div class="book-cover">${coverHtml}</div>
               <div class="book-info">
@@ -692,12 +715,12 @@
                 ${book.dateRead ? `<p class="book-date-read">${formatDateRead(book.dateRead)} ${getFormatEmoji(book.format || 'physical')}</p>` : ''}
               </div>
               ${ratingCircle(book.rating)}
+              ${reviewHtml}
+              ${isAdmin ? `<div class="book-actions">
+                <button class="btn btn-secondary btn-small" onclick="openEdit(books.find(b=>b.id===${book.id}))">Edit</button>
+                <button class="btn btn-danger btn-small" onclick="deleteBook(${book.id})">Delete</button>
+              </div>` : ''}
             </div>
-            ${reviewHtml}
-            ${isAdmin ? `<div class="book-actions">
-              <button class="btn btn-secondary btn-small" onclick="openEdit(books.find(b=>b.id===${book.id}))">Edit</button>
-              <button class="btn btn-danger btn-small" onclick="deleteBook(${book.id})">Delete</button>
-            </div>` : ''}
           </div>`;
         });
       }
