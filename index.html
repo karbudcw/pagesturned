@@ -220,10 +220,11 @@
     .pagination-btn { background: none; border: 1px solid #ddd; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-family: inherit; transition: all 0.2s; color: #2D3E50; }
     .pagination-btn:hover:not(.disabled) { border-color: #2D3E50; background: #f5f5f5; }
     .pagination-btn.disabled { color: #ccc; cursor: not-allowed; }
-    .pagination-numbers { display: flex; gap: 4px; }
+    .pagination-numbers { display: flex; gap: 4px; align-items: center; }
     .pagination-num { background: none; border: 1px solid transparent; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 14px; font-family: inherit; transition: all 0.2s; color: #666; }
     .pagination-num:hover:not(.active) { background: #f5f5f5; }
     .pagination-num.active { background: #2D3E50; color: #fff; font-weight: 500; }
+    .pagination-ellipsis { color: #999; font-size: 14px; padding: 0 4px; }
     
     @media (max-width: 600px) {
       /* Mobile header layout - Option 3: icon on top, text stacked below, dropdown nav */
@@ -772,15 +773,47 @@
             html += `<button class="pagination-btn disabled" disabled>← Prev</button>`;
           }
           
-          // Page numbers
+          // Page numbers with ellipsis for large page counts
           html += `<div class="pagination-numbers">`;
-          for (let p = 1; p <= totalPages; p++) {
-            if (p === currentPage) {
+          
+          const getPageNumbers = () => {
+            const pages = [];
+            const showEllipsisBefore = currentPage > 3;
+            const showEllipsisAfter = currentPage < totalPages - 2;
+            
+            // Always show page 1
+            pages.push(1);
+            
+            if (showEllipsisBefore) {
+              pages.push('...');
+            }
+            
+            // Pages around current
+            for (let p = Math.max(2, currentPage - 1); p <= Math.min(totalPages - 1, currentPage + 1); p++) {
+              if (!pages.includes(p)) pages.push(p);
+            }
+            
+            if (showEllipsisAfter) {
+              pages.push('...');
+            }
+            
+            // Always show last page (if more than 1 page)
+            if (totalPages > 1 && !pages.includes(totalPages)) {
+              pages.push(totalPages);
+            }
+            
+            return pages;
+          };
+          
+          getPageNumbers().forEach(p => {
+            if (p === '...') {
+              html += `<span class="pagination-ellipsis">...</span>`;
+            } else if (p === currentPage) {
               html += `<button class="pagination-num active">${p}</button>`;
             } else {
               html += `<button class="pagination-num" onclick="setPage(${p})">${p}</button>`;
             }
-          }
+          });
           html += `</div>`;
           
           // Next button
