@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pages Turned</title>
-  <!-- V3.2 - Desktop: CSS Grid 4-column card layout, centered rank/rating, 760px max-width -->
+  <!-- V3.3 - Desktop: centered rank (24px gaps), Mobile: more breathing room -->
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -95,8 +95,8 @@
       grid-template-columns: 36px auto 1fr 50px;
       grid-template-rows: auto auto;
       align-items: start;
-      column-gap: 20px;
-      row-gap: 20px;
+      column-gap: 24px;
+      row-gap: 28px;
     }
     .book-card-grid .book-rank {
       grid-column: 1;
@@ -287,7 +287,7 @@
       .card.book-card {
         max-width: 100%;
         padding: 28px;
-        padding-top: 72px;
+        padding-top: 84px;
         margin-left: 8px;
         margin-right: 8px;
       }
@@ -329,7 +329,7 @@
         grid-column: 1 / -1;
         grid-row: 3;
         justify-self: center;
-        margin-top: 4px;
+        margin-top: 12px;
       }
       .book-card-grid .book-actions {
         grid-column: 1 / -1;
