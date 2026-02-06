@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pages Turned — Book Updater</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&family=Architects+Daughter&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #faf9f7; color: #2D3E50; line-height: 1.6; }
+    .container { max-width: 760px; margin: 0 auto; padding: 8px 24px 24px 24px; }
+    header { display: flex; align-items: center; justify-content: space-between; max-width: 760px; margin: 0 auto; padding: 24px 24px; gap: 24px; }
+    .header-border { border-bottom: 1px solid #e8e6e3; }
+    .logo-section { display: flex; align-items: center; gap: 20px; }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-name { font-family: 'Libre Baskerville', serif; font-size: 1.8rem; font-weight: 700; color: #2D3E50; margin-bottom: 8px; }
+    .tagline { color: #555; font-size: 1.0rem; }
+    .btn { padding: 10px 20px; background: #2D3E50; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-family: inherit; transition: background 0.2s; }
+    .btn:hover { background: #3d4e60; }
+    .btn-secondary { background: #f5f5f5; color: #2D3E50; border: 1px solid #ddd; }
+    .btn-secondary:hover { background: #eee; }
+    .btn-small { padding: 6px 12px; font-size: 12px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-success { background: #43A047; }
+    .btn-success:hover { background: #388E3C; }
+    input, textarea, select { padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: inherit; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #999; }
+    label { font-size: 14px; color: #666; display: block; margin-bottom: 6px; }
+    .form-group { margin-bottom: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { background: #fff; border: 1px solid #e8e6e3; border-radius: 8px; padding: 24px; margin-top: 20px; margin-bottom: 36px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); max-width: 760px; }
+    .format-selector { display: flex; gap: 8px; }
+    .format-btn { padding: 8px 16px; border: 2px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    .format-btn:hover { border-color: #999; }
+    .format-btn.selected { border-color: #2D3E50; background: #f0f4f8; }
+    .rating-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; gap: 16px; margin: 8px 0 32px 0; background: #fff; border: 1px solid #e8e6e3; border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+    .stat-number { font-family: 'Libre Baskerville', serif; font-size: 1.75rem; color: #2D3E50; }
+    .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+    .progress-bar-container { background: #e8e6e3; border-radius: 10px; height: 8px; margin: 16px 0; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: #43A047; border-radius: 10px; transition: width 0.3s ease; }
+    .book-nav { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
+    .book-nav-info { font-family: 'Libre Baskerville', serif; font-size: 1rem; color: #888; }
+    .review-options { margin-top: 12px; }
+    .review-option { padding: 14px 16px; border: 2px solid #e8e6e3; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; font-family: 'Libre Baskerville', serif; font-size: 0.95rem; line-height: 1.5; color: #2D3E50; }
+    .review-option:hover { border-color: #999; background: #fafafa; }
+    .review-option.selected { border-color: #2D3E50; background: #f0f4f8; }
+    .review-option-num { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: #e8e6e3; text-align: center; line-height: 22px; font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 600; margin-right: 10px; color: #666; vertical-align: middle; }
+    .review-option.selected .review-option-num { background: #2D3E50; color: #fff; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: #2D3E50; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .phase-panel { background: #fff; border: 1px solid #e8e6e3; border-radius: 8px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+    .phase-title { font-family: 'Libre Baskerville', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+    .phase-desc { color: #888; font-size: 0.9rem; margin-bottom: 16px; }
+    .log-area { background: #f8f8f6; border: 1px solid #e8e6e3; border-radius: 6px; padding: 12px; max-height: 300px; overflow-y: auto; font-size: 12px; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; line-height: 1.8; color: #555; }
+    .log-ok { color: #2E7D32; } .log-err { color: #c62828; } .log-info { color: #1565c0; } .log-warn { color: #e65100; }
+    .drop-zone { border: 2px dashed #ccc; border-radius: 12px; padding: 60px 40px; text-align: center; cursor: pointer; transition: all 0.2s; margin: 40px 0; }
+    .drop-zone:hover, .drop-zone.dragover { border-color: #2D3E50; background: #f0f4f8; }
+    .drop-zone h3 { font-family: 'Libre Baskerville', serif; margin-bottom: 8px; }
+    .drop-zone p { color: #888; font-size: 0.9rem; }
+    .section-title { font-family: 'Libre Baskerville', serif; font-size: 1.35rem; font-weight: 500; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e8e6e3; color: #2D3E50; }
+    .skip-link { color: #888; font-size: 13px; cursor: pointer; text-decoration: underline; }
+    .skip-link:hover { color: #2D3E50; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #2D3E50; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; }
+    .editor-cover { width: 80px; height: 120px; background: #eee; border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+    .editor-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .editor-book-header { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px; }
+    .editor-book-meta { flex: 1; }
+    .editor-book-title { font-family: 'Libre Baskerville', serif; font-size: 1.15rem; font-weight: 700; color: #2D3E50; margin-bottom: 6px; }
+    .editor-book-author { color: #888; font-size: 0.85rem; margin-bottom: 4px; }
+    .editor-book-date { color: #999; font-size: 0.85rem; }
+    .rating-input-row { display: flex; align-items: center; gap: 16px; }
+    .rating-input-row input[type="number"] { width: 80px; }
+    .api-key-section { background: #f8f8f6; border: 1px solid #e8e6e3; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+    .api-key-section label { font-weight: 500; color: #2D3E50; }
+    .api-key-section .hint { font-size: 12px; color: #999; margin-top: 4px; }
+    @media (max-width: 600px) {
+      header { flex-direction: column; align-items: center; padding: 16px 20px 24px; gap: 0; }
+      .brand-name { font-size: 2rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .book-nav { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+let allBooks = [], unreviewedBooks = [], currentIndex = 0;
+let phase = 'load';
+let repairLog = [], repairDone = false;
+let repairProgress = { checked: 0, total: 0, coversFixed: 0, pagesFound: 0, coversVerified: 0 };
+let reviewOptions = [], generatingReviews = false, selectedReviewIdx = null;
+let anthropicApiKey = localStorage.getItem('pt_anthropic_key') || '';
+let editState = { rating: null, format: 'ebook', review: '', pageCount: null };
+const E = { book:'\u{1F4D6}', phone:'\u{1F4F1}', headphones:'\u{1F3A7}', left:'\u2190', right:'\u2192', check:'\u2713', cross:'\u2717', sparkle:'\u2728' };
+const getColor = r => {
+  if(r==null)return'#ccc';if(r>=95)return'#1B5E20';if(r>=90)return'#2E7D32';if(r>=85)return'#388E3C';if(r>=80)return'#43A047';
+  if(r>=75)return'#FBC02D';if(r>=70)return'#F9A825';if(r>=65)return'#FB8C00';if(r>=60)return'#EF6C00';
+  if(r>=50)return'#EF5350';if(r>=40)return'#F44336';if(r>=30)return'#E53935';if(r>=20)return'#D32F2F';if(r>=10)return'#C62828';return'#B71C1C';
+};
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function addLog(m,t=''){repairLog.push({msg:m,type:t});requestAnimationFrame(()=>{const l=document.querySelector('.log-area');if(l)l.scrollTop=l.scrollHeight;});}
+
+function handleFile(f){
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      allBooks=d.books||d;
+      if(!Array.isArray(allBooks)){alert('Invalid format');return;}
+      unreviewedBooks=allBooks.filter(b=>!b.review||b.review.trim()==='');
+      phase='repair';render();startRepair();
+    }catch(err){alert('Invalid JSON: '+err.message);}
+  };
+  r.readAsText(f);
+}
+
+async function startRepair(){
+  repairProgress.total=unreviewedBooks.length;
+  addLog(`Starting auto-repair for ${unreviewedBooks.length} unreviewed books...`,'info');
+  addLog('','');
+  for(let i=0;i<unreviewedBooks.length;i++){
+    await repairBook(unreviewedBooks[i]);
+    repairProgress.checked=i+1;
+    if(i%5===0||i===unreviewedBooks.length-1)render();
+    await sleep(200);
+  }
+  addLog('','');
+  addLog(`Repair complete!`,'ok');
+  addLog(`  Covers verified OK: ${repairProgress.coversVerified}`,'ok');
+  addLog(`  Covers fixed/found: ${repairProgress.coversFixed}`,'ok');
+  addLog(`  Page counts found: ${repairProgress.pagesFound}`,'ok');
+  repairDone=true;render();
+}
+
+async function repairBook(book){
+  const short=book.title.length>50?book.title.slice(0,47)+'...':book.title;
+  // Check cover
+  if(book.cover){
+    const ok=await checkImage(book.cover);
+    if(ok){repairProgress.coversVerified++;}
+    else{
+      addLog(`${E.cross} Cover broken: ${short}`,'err');
+      const nc=await findCover(book);
+      if(nc){book.cover=nc;repairProgress.coversFixed++;addLog(`  ${E.check} Replacement found`,'ok');}
+      else addLog(`  No replacement found`,'warn');
+    }
+  }else{
+    addLog(`${E.cross} No cover: ${short}`,'err');
+    const nc=await findCover(book);
+    if(nc){book.cover=nc;repairProgress.coversFixed++;addLog(`  ${E.check} Cover found`,'ok');}
+    else addLog(`  No cover found`,'warn');
+  }
+  // Page count via Google Books
+  if(!book.pageCount){
+    const gb=await fetchGoogleBooks(book);
+    if(gb?.pageCount){book.pageCount=gb.pageCount;repairProgress.pagesFound++;}
+    if(!book.cover&&gb?.thumbnail){book.cover=gb.thumbnail;repairProgress.coversFixed++;addLog(`  ${E.check} Cover from Google Books`,'ok');}
+  }
+  // Amazon URL
+  if(book.asin&&(!book.amazonUrl||!book.amazonUrl.includes('tag=pagesturned-20'))){
+    book.amazonUrl=`https://www.amazon.com/dp/${book.asin}?tag=pagesturned-20`;
+  }
+}
+
+function checkImage(url){
+  return new Promise(resolve=>{
+    if(!url)return resolve(false);
+    const img=new Image();
+    img.onload=()=>resolve(img.naturalWidth>10&&img.naturalHeight>10);
+    img.onerror=()=>resolve(false);
+    img.src=url;
+    setTimeout(()=>resolve(false),8000);
+  });
+}
+
+async function findCover(book){
+  if(book.asin){const u=`https://covers.openlibrary.org/b/isbn/${book.asin}-M.jpg`;if(await checkImage(u))return u;}
+  if(book.isbn){const u=`https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`;if(await checkImage(u))return u;}
+  const gb=await fetchGoogleBooks(book);
+  return gb?.thumbnail||null;
+}
+
+async function fetchGoogleBooks(book){
+  const queries=[];
+  if(book.isbn)queries.push(`isbn:${book.isbn}`);
+  if(book.asin)queries.push(`isbn:${book.asin}`);
+  queries.push(`intitle:${book.title}${book.author?'+inauthor:'+book.author.split(' ').pop():''}`);
+  for(const q of queries){
+    try{
+      const r=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=1`);
+      if(!r.ok)continue;
+      const d=await r.json();
+      if(d.totalItems>0&&d.items?.[0]?.volumeInfo){
+        const v=d.items[0].volumeInfo;
+        return{pageCount:v.pageCount||null,thumbnail:v.imageLinks?.thumbnail?.replace('http://','https://')||null};
+      }
+    }catch(e){}
+  }
+  return null;
+}
+
+function startEditing(){
+  unreviewedBooks=allBooks.filter(b=>!b.review||b.review.trim()==='');
+  currentIndex=0;phase='edit';loadCurrentBook();render();
+}
+function loadCurrentBook(){
+  const b=unreviewedBooks[currentIndex];if(!b)return;
+  editState={rating:b.rating||null,format:b.format&&b.format!=='physical'?b.format:'ebook',review:b.review||'',pageCount:b.pageCount||null};
+  reviewOptions=[];selectedReviewIdx=null;generatingReviews=false;
+}
+function saveCurrentBook(){
+  const b=unreviewedBooks[currentIndex];if(!b)return;
+  const ge=id=>document.getElementById(id);
+  const rating=ge('input-rating')?.value.trim()!==''?parseInt(ge('input-rating').value):null;
+  const pageCount=ge('input-pageCount')?.value.trim()!==''?parseInt(ge('input-pageCount').value):b.pageCount;
+  const review=ge('input-review')?.value.trim()||'';
+  const cover=ge('input-cover')?.value.trim()||b.cover;
+  const amazonUrl=ge('input-amazonUrl')?.value.trim()||b.amazonUrl;
+  const dateRead=ge('input-dateRead')?.value||b.dateRead;
+  const upd={rating,review,format:editState.format,pageCount,cover,amazonUrl,dateRead};
+  const idx=allBooks.findIndex(x=>x.id===b.id);
+  if(idx!==-1)Object.assign(allBooks[idx],upd);
+  Object.assign(b,upd);
+  toast('Book saved!');
+}
+function saveAndNext(){saveCurrentBook();if(currentIndex<unreviewedBooks.length-1){currentIndex++;loadCurrentBook();render();window.scrollTo({top:0,behavior:'smooth'});}else{phase='done';render();}}
+function skipBook(){if(currentIndex<unreviewedBooks.length-1){currentIndex++;loadCurrentBook();render();window.scrollTo({top:0,behavior:'smooth'});}}
+function prevBook(){if(currentIndex>0){currentIndex--;loadCurrentBook();render();window.scrollTo({top:0,behavior:'smooth'});}}
+function setFormat(f){editState.format=f;document.querySelectorAll('.format-btn').forEach(b=>b.classList.remove('selected'));event.target.classList.add('selected');}
+function selectReview(i){
+  selectedReviewIdx=i;
+  const el=document.getElementById('input-review');if(el)el.value=reviewOptions[i];
+  editState.review=reviewOptions[i];
+  document.querySelectorAll('.review-option').forEach((el,j)=>{
+    el.classList.toggle('selected',j===i);
+    const n=el.querySelector('.review-option-num');
+    n.style.background=j===i?'#2D3E50':'#e8e6e3';n.style.color=j===i?'#fff':'#666';
+  });
+}
+function saveApiKey(){const v=document.getElementById('api-key-input');if(v){anthropicApiKey=v.value.trim();localStorage.setItem('pt_anthropic_key',anthropicApiKey);toast('API key saved');}}
+
+async function generateReviews(){
+  const b=unreviewedBooks[currentIndex];if(!b)return;
+  const rating=document.getElementById('input-rating')?.value.trim()!==''?parseInt(document.getElementById('input-rating').value):null;
+  if(!rating){toast('Set a rating first');return;}
+  if(!anthropicApiKey){toast('Enter your Anthropic API key first');return;}
+  generatingReviews=true;reviewOptions=[];selectedReviewIdx=null;render();
+  let tone='';
+  if(rating>=80)tone='Gut Reaction style: personal, enthusiastic, vivid. The reviewer loved this.';
+  else if(rating>=50)tone='Capsule Critic style: balanced, observational, measured. Mixed feelings or solid-not-great.';
+  else tone='Micro-Verdict style: sharp, declarative, cutting. The reviewer was disappointed.';
+  const prompt=`You write micro-reviews for "Pages Turned," a personal book review site.
+
+RULES: Exactly two sentences, 20-30 words total. Smart, direct, a little funny when earned. No plot summary, no superlatives, no hedging, no clichés. Present tense. No ellipses/semicolons/book quotes.
+
+SIGNATURE MOVES: The Reframe (what a book actually is), The Verdict with Receipts (judgment + detail), The Wry Observation (dry humor), The Revealed Truth (discoveries), The Qualifying Take (praise/criticism + caveat), The Clean Judgment (plain core issue), The Big Picture Hook (larger connection).
+
+EXAMPLES: 89:"A billion-dollar railroad built on ego, erased by hurricane, abandoned ever since. American hubris in three acts." 87:"A 72-minute countdown to the end of everything. Good luck sleeping." 83:"Supply chains as geopolitical thriller. Our national security runs through lithography machines." 78:"Neither takedown nor tribute. Just 900 pages of careful accounting." 74:"Engineering history dressed up as true crime. Works better than it sounds." 65:"All magnolias and melodrama. Won't bore you, won't move you." 49:"A true crime head fake. Hours wasted on awful humans doing awful human things."
+
+TONE: ${tone}
+BOOK: "${b.title}" by ${b.author||'Unknown'} (${b.year||'?'})
+RATING: ${rating}/100
+
+Generate exactly 10 different two-sentence reviews. Vary angles and moves. Return ONLY a JSON array of 10 strings.`;
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":anthropicApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1500,messages:[{role:"user",content:prompt}]})});
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`API error ${r.status}`);}
+    const d=await r.json();const t=d.content?.map(c=>c.text||'').join('')||'';
+    reviewOptions=JSON.parse(t.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim());
+    if(!Array.isArray(reviewOptions))reviewOptions=[];
+  }catch(err){console.error(err);reviewOptions=[];toast('Failed: '+err.message);}
+  generatingReviews=false;render();
+}
+
+function exportData(){
+  const s=JSON.stringify({books:allBooks},null,2);
+  const b=new Blob([s],{type:'application/json'});const u=URL.createObjectURL(b);
+  const a=document.createElement('a');a.href=u;a.download=`pages-turned-backup-${new Date().toISOString().split('T')[0]}-updated.json`;a.click();URL.revokeObjectURL(u);toast('Data exported!');
+}
+
+function render(){
+  const app=document.getElementById('app');
+  if(phase==='load'){app.innerHTML=renderLoad();setupDrop();}
+  else if(phase==='repair')app.innerHTML=renderRepair();
+  else if(phase==='edit')app.innerHTML=renderEdit();
+  else app.innerHTML=renderDone();
+}
+function hdr(sub){return`<div class="header-border"><header><div class="logo-section"><div class="brand-text"><span class="brand-name">Pages Turned</span><span class="tagline">${sub||'Book Updater'}</span></div></div></header></div>`;}
+
+function renderLoad(){
+  return`${hdr('Book Updater')}<div class="container"><div class="drop-zone" id="drop-zone"><h3>Load your book data</h3><p>Drop your <code>pages-turned-backup-*.json</code> here, or click to browse</p><input type="file" id="file-input" accept=".json" style="display:none"></div><p style="text-align:center;color:#999;font-size:13px;">Open this file directly in your browser (not inside Claude.ai) for full API access.</p></div>`;
+}
+function setupDrop(){
+  const z=document.getElementById('drop-zone'),f=document.getElementById('file-input');if(!z||!f)return;
+  z.onclick=()=>f.click();
+  z.ondragover=e=>{e.preventDefault();z.classList.add('dragover');};
+  z.ondragleave=()=>z.classList.remove('dragover');
+  z.ondrop=e=>{e.preventDefault();z.classList.remove('dragover');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);};
+  f.onchange=()=>{if(f.files[0])handleFile(f.files[0]);};
+}
+
+function renderRepair(){
+  const p=repairProgress,pct=p.total?Math.round(p.checked/p.total*100):0;
+  return`${hdr('Auto-Repair')}<div class="container">
+    <div class="stats">
+      <div><div class="stat-number">${allBooks.length}</div><div class="stat-label">Total Books</div></div>
+      <div><div class="stat-number">${unreviewedBooks.length}</div><div class="stat-label">Need Review</div></div>
+      <div><div class="stat-number">${p.coversFixed}</div><div class="stat-label">Covers Fixed</div></div>
+      <div><div class="stat-number">${p.pagesFound}</div><div class="stat-label">Pages Found</div></div>
+    </div>
+    <div class="phase-panel">
+      <div class="phase-title">${repairDone?E.check+' ':'<span class="spinner"></span>'}Checking covers, page counts & Amazon links</div>
+      <div class="phase-desc">Processing ${p.checked} of ${p.total} books (${pct}%)</div>
+      <div class="progress-bar-container"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      <div class="log-area">${repairLog.map(l=>`<div class="${l.type?'log-'+l.type:''}">${l.msg||'&nbsp;'}</div>`).join('')}</div>
+    </div>
+    ${repairDone?`<div style="display:flex;gap:12px;justify-content:center;margin-top:24px;">
+      <button class="btn" onclick="startEditing()">Start Reviewing Books ${E.right}</button>
+      <button class="btn btn-secondary" onclick="exportData()">Export Fixed Data</button>
+    </div><p style="text-align:center;color:#999;font-size:13px;margin-top:12px;">Export now to save cover/page fixes, then continue to reviews.</p>`
+    :`<div style="text-align:center;margin-top:16px;"><button class="btn btn-secondary btn-small" onclick="repairDone=true;render();">Skip to editing ${E.right}</button></div>`}
+  </div>`;
+}
+
+function renderEdit(){
+  const b=unreviewedBooks[currentIndex];if(!b)return renderDone();
+  const completed=allBooks.filter(x=>x.review&&x.review.trim()!=='').length;
+  const fmtDate=d=>{if(!d)return'';const dt=new Date(d);const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`Read ${m[dt.getMonth()]} ${dt.getFullYear()}`;};
+  const rc=getColor(editState.rating);
+  return`${hdr(`Book ${currentIndex+1} of ${unreviewedBooks.length}`)}<div class="container">
+    <div class="api-key-section">
+      <label>Anthropic API Key (for review generation)</label>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <input type="password" id="api-key-input" value="${anthropicApiKey}" placeholder="sk-ant-..." style="flex:1">
+        <button class="btn btn-small" onclick="saveApiKey()">Save</button>
+      </div>
+      <div class="hint">Stored in localStorage only. Sent only to api.anthropic.com.</div>
+    </div>
+    <div class="book-nav">
+      <button class="btn btn-secondary btn-small" onclick="prevBook()" ${currentIndex===0?'disabled':''}>${E.left} Previous</button>
+      <span class="book-nav-info">${completed} of ${allBooks.length} reviewed</span>
+      <div style="display:flex;gap:8px;"><span class="skip-link" onclick="skipBook()">Skip</span><button class="btn btn-secondary btn-small" onclick="exportData()">Export</button></div>
+    </div>
+    <div class="card">
+      <div class="editor-book-header">
+        <div class="editor-cover">${b.cover?`<img src="${b.cover}" onerror="this.parentElement.innerHTML='No cover'">`:'No cover'}</div>
+        <div class="editor-book-meta">
+          <div class="editor-book-title">${b.title}</div>
+          <p class="editor-book-author">${b.author||''}${b.year?` (${b.year})`:''}</p>
+          ${b.dateRead?`<p class="editor-book-date">${fmtDate(b.dateRead)}</p>`:''}
+        </div>
+      </div>
+      <hr style="border:none;border-top:1px solid #eee;margin:0 0 20px 0">
+      <div class="form-group"><label>Cover URL</label><input type="text" id="input-cover" value="${b.cover||''}" style="width:100%" placeholder="https://..."></div>
+      <div class="form-group"><label>Amazon URL</label><input type="text" id="input-amazonUrl" value="${b.amazonUrl||''}" style="width:100%" placeholder="https://amazon.com/..."></div>
+      <div class="form-group"><label>Format</label>
+        <div class="format-selector">
+          <button class="format-btn ${editState.format==='physical'?'selected':''}" onclick="setFormat('physical')">${E.book} Physical</button>
+          <button class="format-btn ${editState.format==='ebook'?'selected':''}" onclick="setFormat('ebook')">${E.phone} eBook</button>
+          <button class="format-btn ${editState.format==='audiobook'?'selected':''}" onclick="setFormat('audiobook')">${E.headphones} Audiobook</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Date Read</label><input type="date" id="input-dateRead" value="${b.dateRead||''}"></div>
+        <div class="form-group"><label>Page Count</label><input type="number" id="input-pageCount" min="1" value="${b.pageCount||''}" placeholder="Pages"></div>
+      </div>
+      <div class="form-group"><label>Rating (1-100)</label>
+        <div class="rating-input-row">
+          <input type="number" id="input-rating" min="1" max="100" value="${editState.rating||''}" placeholder="1-100" oninput="updateRatingPreview(this.value)">
+          <div class="rating-circle" id="rating-preview" style="background:${rc};box-shadow:0 3px 10px ${rc}44">${editState.rating||'\u2014'}</div>
+        </div>
+      </div>
+      <div class="form-group"><label>Review</label><textarea id="input-review" rows="3" style="width:100%">${editState.review}</textarea></div>
+      <div class="form-group"><button class="btn btn-secondary" onclick="generateReviews()" ${generatingReviews?'disabled':''} style="width:100%">${generatingReviews?'<span class="spinner"></span>Generating...':E.sparkle+' Generate 10 Review Options'}</button></div>
+      ${reviewOptions.length?`<div class="review-options"><label>Pick a review (or edit above):</label>${reviewOptions.map((r,i)=>`<div class="review-option ${selectedReviewIdx===i?'selected':''}" onclick="selectReview(${i})"><span class="review-option-num">${i+1}</span>${r}</div>`).join('')}</div>`:''}
+      <hr style="border:none;border-top:1px solid #eee;margin:20px 0">
+      <button class="btn btn-success" onclick="saveAndNext()" style="width:100%">Save & Next ${E.right}</button>
+    </div>
+  </div>`;
+}
+
+function renderDone(){
+  const rev=allBooks.filter(b=>b.review&&b.review.trim()!=='').length;
+  return`${hdr('Complete')}<div class="container">
+    <div class="stats">
+      <div><div class="stat-number">${rev}</div><div class="stat-label">Reviewed</div></div>
+      <div><div class="stat-number">${allBooks.length-rev}</div><div class="stat-label">Remaining</div></div>
+      <div><div class="stat-number">${allBooks.length}</div><div class="stat-label">Total</div></div>
+      <div><div class="stat-number">${repairProgress.coversFixed}</div><div class="stat-label">Covers Fixed</div></div>
+    </div>
+    <div style="text-align:center;margin:40px 0;">
+      <h2 class="section-title" style="border:none;text-align:center;">Session Complete</h2>
+      <p style="color:#888;margin-bottom:24px;">Export your updated data and upload to Cloudflare KV.</p>
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button class="btn" onclick="exportData()">Export Updated JSON</button>
+        <button class="btn btn-secondary" onclick="phase='edit';currentIndex=0;loadCurrentBook();render();">Review More</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function updateRatingPreview(v){
+  const r=v?parseInt(v):null;editState.rating=r;
+  const p=document.getElementById('rating-preview');if(!p)return;
+  const c=getColor(r);p.style.background=c;p.style.boxShadow=`0 3px 10px ${c}44`;p.textContent=r||'\u2014';
+}
+
+render();
+</script>
+</body>
+</html>
