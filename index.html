@@ -564,6 +564,7 @@
     function goBack() { view = 'list'; resetForm(); render(); }
     function setYear(y) { yearFilter = y; currentPage = 1; dropdownOpen = false; render(); }
     function setPage(p) { currentPage = p; window.scrollTo({ top: 0, behavior: 'smooth' }); render(); }
+    function showAll() { currentPage = 'all'; render(); }
     function toggleDropdown() { dropdownOpen = !dropdownOpen; render(); }
     function setFormat(f) {
       // Update format without re-rendering to preserve form data
@@ -734,9 +735,10 @@
         html += '<div class="empty-state">No books found.</div>';
       } else {
         // Pagination calculations
+        const showingAll = currentPage === 'all';
         const totalPages = Math.ceil(filtered.length / BOOKS_PER_PAGE);
-        const startIndex = (currentPage - 1) * BOOKS_PER_PAGE;
-        const endIndex = startIndex + BOOKS_PER_PAGE;
+        const startIndex = showingAll ? 0 : (currentPage - 1) * BOOKS_PER_PAGE;
+        const endIndex = showingAll ? filtered.length : startIndex + BOOKS_PER_PAGE;
         const paginatedBooks = filtered.slice(startIndex, endIndex);
         
         paginatedBooks.forEach((book, i) => {
@@ -771,6 +773,11 @@
         
         // Pagination controls
         if (totalPages > 1) {
+          if (showingAll) {
+            html += `<div class="pagination">
+              <button class="pagination-btn" onclick="setPage(1)">Show Less</button>
+            </div>`;
+          } else {
           html += `<div class="pagination">`;
           
           // Previous button
@@ -830,7 +837,11 @@
             html += `<button class="pagination-btn disabled" disabled>Next →</button>`;
           }
           
+          // Show All button
+          html += `<button class="pagination-btn" onclick="showAll()">Show All</button>`;
+          
           html += `</div>`;
+          }
         }
       }
       html += '</div>';
