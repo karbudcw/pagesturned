@@ -680,10 +680,12 @@
         <header>
           <div class="logo-section">
             <a href="/" class="logo-link"><img src="icon.png" alt="Pages Turned" class="logo-icon"></a>
-            <div class="brand-text">
-              <a href="/" class="logo-link"><span class="brand-name">Pages Turned</span></a>
-              <a href="/" class="logo-link"><span class="tagline">The TL;DR of book reviews</span></a>
-            </div>
+            <a href="/" class="logo-link">
+              <div class="brand-text">
+                <span class="brand-name">Pages Turned</span>
+                <span class="tagline">The TL;DR of book reviews</span>
+              </div>
+            </a>
           </div>
           <nav class="desktop-nav">
             <button class="${yearFilter === 'all-time' ? 'active' : ''}" onclick="setYear('all-time')">${EMOJI.trophy} All Time</button>
