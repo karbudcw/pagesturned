@@ -53,6 +53,10 @@
       height: 90px;
       width: auto;
     }
+    .logo-link {
+      text-decoration: none;
+      color: inherit;
+    }
     .brand-text {
       display: flex;
       flex-direction: column;
@@ -675,10 +679,10 @@
         <div class="header-border">
         <header>
           <div class="logo-section">
-            <img src="icon.png" alt="Pages Turned" class="logo-icon">
+            <a href="/" class="logo-link"><img src="icon.png" alt="Pages Turned" class="logo-icon"></a>
             <div class="brand-text">
-              <span class="brand-name">Pages Turned</span>
-              <span class="tagline">The TL;DR of book reviews</span>
+              <a href="/" class="logo-link"><span class="brand-name">Pages Turned</span></a>
+              <a href="/" class="logo-link"><span class="tagline">The TL;DR of book reviews</span></a>
             </div>
           </div>
           <nav class="desktop-nav">
@@ -710,10 +714,10 @@
         </header>
         </div>
         <div class="container">
-          <div class="top-bar">
-            ${isAdmin ? '<button class="btn btn-secondary btn-small" onclick="exportData()">' + EMOJI.floppy + ' Backup Data</button>' : '<div></div>'}
-            ${isAdmin ? '<button class="btn" onclick="openAdd()">+ Add Book</button>' : ''}
-          </div>
+          ${isAdmin ? `<div class="top-bar">
+            <button class="btn btn-secondary btn-small" onclick="exportData()">${EMOJI.floppy} Backup Data</button>
+            <button class="btn" onclick="openAdd()">+ Add Book</button>
+          </div>` : ''}
           <div class="stats">
             <div><div class="stat-number">${filtered.length}</div><div class="stat-label">Books</div></div>
             <div><div class="stat-number">${totalPages.toLocaleString()}</div><div class="stat-label">Pages</div></div>
