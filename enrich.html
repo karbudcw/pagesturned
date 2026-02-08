@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pages Turned - Enrich Books</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #faf9f7; color: #2D3E50; padding: 32px; max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.4rem; margin-bottom: 8px; }
+    .subtitle { color: #888; margin-bottom: 24px; }
+    .btn { padding: 10px 20px; background: #2D3E50; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-family: inherit; }
+    .btn:hover { background: #3d4e60; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-danger { background: #c44; }
+    .btn-danger:hover { background: #a33; }
+    .buttons { display: flex; gap: 12px; margin-bottom: 24px; }
+    #log { background: #fff; border: 1px solid #e8e6e3; border-radius: 8px; padding: 16px; font-family: monospace; font-size: 13px; line-height: 1.8; white-space: pre-wrap; max-height: 600px; overflow-y: auto; }
+    .updated { color: #2E7D32; }
+    .skipped { color: #888; }
+    .error { color: #c44; }
+    .info { color: #2D3E50; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Enrich Books</h1>
+  <p class="subtitle">Fills in Amazon URL, cover, and page count for books without reviews via Google Books API.</p>
+  <div class="buttons">
+    <button class="btn" onclick="run(true)">Dry Run (Preview)</button>
+    <button class="btn btn-danger" onclick="run(false)">Live Run (Save Changes)</button>
+  </div>
+  <div id="log">Click "Dry Run" to preview changes.</div>
+
+  <script>
+    const ADMIN_KEY = 'CV!vxUCQvr*p47xNX@ZB';
+    const AFFILIATE_TAG = 'pagesturned-20';
+    const logEl = document.getElementById('log');
+
+    function log(msg, cls = '') {
+      const span = document.createElement('span');
+      span.className = cls;
+      span.textContent = msg + '\n';
+      logEl.appendChild(span);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async function fetchGoogle(isbn) {
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&maxResults=1`);
+      const data = await res.json();
+      if (!data.items?.length) return null;
+      const vol = data.items[0].volumeInfo;
+      const ids = vol.industryIdentifiers || [];
+      return {
+        isbn10: ids.find(i => i.type === 'ISBN_10')?.identifier || null,
+        isbn13: ids.find(i => i.type === 'ISBN_13')?.identifier || null,
+        cover: vol.imageLinks?.thumbnail?.replace('http://', 'https://') || null,
+        pageCount: vol.pageCount || null
+      };
+    }
+
+    async function searchGoogle(title, author) {
+      let q = title;
+      if (author) q += ' ' + author;
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=3`);
+      const data = await res.json();
+      if (!data.items?.length) return null;
+      const norm = t => (t || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const target = norm(title);
+      const match = data.items.find(i => {
+        const t = norm(i.volumeInfo.title);
+        return t.includes(target) || target.includes(t);
+      }) || data.items[0];
+      const vol = match.volumeInfo;
+      const ids = vol.industryIdentifiers || [];
+      return {
+        isbn10: ids.find(i => i.type === 'ISBN_10')?.identifier || null,
+        isbn13: ids.find(i => i.type === 'ISBN_13')?.identifier || null,
+        cover: vol.imageLinks?.thumbnail?.replace('http://', 'https://') || null,
+        pageCount: vol.pageCount || null
+      };
+    }
+
+    async function run(dryRun) {
+      logEl.innerHTML = '';
+      document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+
+      try {
+        log(dryRun ? '=== DRY RUN ===' : '=== LIVE RUN ===', 'info');
+        log('Fetching books...');
+
+        const res = await fetch('/api/books');
+        const data = await res.json();
+        const books = data.books || [];
+
+        const toEnrich = books.filter(b => !b.review?.trim());
+        log(`Total: ${books.length} | With reviews (skip): ${books.length - toEnrich.length} | To enrich: ${toEnrich.length}`, 'info');
+        log('---');
+
+        let updated = 0, failed = 0, noMatch = 0, complete = 0;
+
+        for (const book of toEnrich) {
+          const isbn = book.isbn?.trim();
+          let gb = null;
+
+          if (isbn) {
+            gb = await fetchGoogle(isbn);
+          }
+          if (!gb) {
+            gb = await searchGoogle(book.title, book.author);
+          }
+
+          if (!gb) {
+            log(`[NO MATCH] "${book.title}"`, 'error');
+            noMatch++;
+            await sleep(200);
+            continue;
+          }
+
+          const changes = [];
+
+          if (!book.amazonUrl?.trim()) {
+            const asin = gb.isbn10 || isbn || gb.isbn13;
+            if (asin) {
+              if (!dryRun) book.amazonUrl = `https://www.amazon.com/dp/${asin}?tag=${AFFILIATE_TAG}`;
+              changes.push(`amazonUrl (${asin})`);
+            }
+          }
+
+          if (!book.cover?.trim() && gb.cover) {
+            if (!dryRun) book.cover = gb.cover;
+            changes.push('cover');
+          }
+
+          if (!book.pageCount && gb.pageCount) {
+            if (!dryRun) book.pageCount = gb.pageCount;
+            changes.push(`pageCount (${gb.pageCount})`);
+          }
+
+          if (!book.isbn?.trim() && (gb.isbn13 || gb.isbn10)) {
+            if (!dryRun) book.isbn = gb.isbn13 || gb.isbn10;
+            changes.push(`isbn (${gb.isbn13 || gb.isbn10})`);
+          }
+
+          if (changes.length > 0) {
+            log(`[UPDATED] "${book.title}" — ${changes.join(', ')}`, 'updated');
+            updated++;
+          } else {
+            complete++;
+          }
+
+          await sleep(200);
+        }
+
+        log('---');
+        log(`Updated: ${updated} | Already complete: ${complete} | No match: ${noMatch}`, 'info');
+
+        if (!dryRun && updated > 0) {
+          log('Saving to KV...');
+          await fetch('/api/books', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ADMIN_KEY}` },
+            body: JSON.stringify({ books })
+          });
+          log('Done! Data saved.', 'info');
+        } else if (dryRun && updated > 0) {
+          log('Dry run complete. Click "Live Run" to save changes.', 'info');
+        } else {
+          log('Nothing to update.', 'info');
+        }
+      } catch (err) {
+        log(`Fatal error: ${err.message}`, 'error');
+      }
+
+      document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+    }
+  </script>
+</body>
+</html>
