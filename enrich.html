@@ -24,7 +24,7 @@
 </head>
 <body>
   <h1>Enrich Books</h1>
-  <p class="subtitle">Fills in Amazon URL, cover, and page count for books without reviews via Google Books API.</p>
+  <p class="subtitle">Overwrites Amazon URL, cover, and page count for all books without reviews using Google Books API.</p>
   <div class="buttons">
     <button class="btn" onclick="run(true)">Dry Run (Preview)</button>
     <button class="btn btn-danger" onclick="run(false)">Live Run (Save Changes)</button>
@@ -46,40 +46,40 @@
 
     function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-    async function fetchGoogle(isbn) {
-      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&maxResults=1`);
-      const data = await res.json();
-      if (!data.items?.length) return null;
-      const vol = data.items[0].volumeInfo;
-      const ids = vol.industryIdentifiers || [];
-      return {
-        isbn10: ids.find(i => i.type === 'ISBN_10')?.identifier || null,
-        isbn13: ids.find(i => i.type === 'ISBN_13')?.identifier || null,
-        cover: vol.imageLinks?.thumbnail?.replace('http://', 'https://') || null,
-        pageCount: vol.pageCount || null
-      };
-    }
+    async function lookupBook(book) {
+      // Try ISBN first if available
+      if (book.isbn?.trim()) {
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${book.isbn.trim()}&maxResults=1`);
+        const data = await res.json();
+        if (data.items?.length) return parseResult(data.items[0]);
+      }
 
-    async function searchGoogle(title, author) {
-      let q = title;
-      if (author) q += ' ' + author;
+      // Fallback: search by title + author
+      let q = book.title;
+      if (book.author) q += ' ' + book.author;
       const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=3`);
       const data = await res.json();
       if (!data.items?.length) return null;
+
+      // Try to match by title
       const norm = t => (t || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-      const target = norm(title);
+      const target = norm(book.title);
       const match = data.items.find(i => {
         const t = norm(i.volumeInfo.title);
         return t.includes(target) || target.includes(t);
       }) || data.items[0];
-      const vol = match.volumeInfo;
+
+      return parseResult(match);
+    }
+
+    function parseResult(item) {
+      const vol = item.volumeInfo;
       const ids = vol.industryIdentifiers || [];
-      return {
-        isbn10: ids.find(i => i.type === 'ISBN_10')?.identifier || null,
-        isbn13: ids.find(i => i.type === 'ISBN_13')?.identifier || null,
-        cover: vol.imageLinks?.thumbnail?.replace('http://', 'https://') || null,
-        pageCount: vol.pageCount || null
-      };
+      const isbn10 = ids.find(i => i.type === 'ISBN_10')?.identifier || null;
+      const isbn13 = ids.find(i => i.type === 'ISBN_13')?.identifier || null;
+      let cover = vol.imageLinks?.thumbnail?.replace('http://', 'https://') || null;
+      if (cover) cover = cover.replace('zoom=1', 'zoom=0').replace('&edge=curl', '');
+      return { isbn10, isbn13, cover, pageCount: vol.pageCount || null };
     }
 
     async function run(dryRun) {
@@ -98,63 +98,62 @@
         log(`Total: ${books.length} | With reviews (skip): ${books.length - toEnrich.length} | To enrich: ${toEnrich.length}`, 'info');
         log('---');
 
-        let updated = 0, failed = 0, noMatch = 0, complete = 0;
+        let updated = 0, noMatch = 0;
 
-        for (const book of toEnrich) {
-          const isbn = book.isbn?.trim();
-          let gb = null;
+        for (let i = 0; i < toEnrich.length; i++) {
+          const book = toEnrich[i];
+          log(`[${i + 1}/${toEnrich.length}] Looking up "${book.title}"...`, 'skipped');
 
-          if (isbn) {
-            gb = await fetchGoogle(isbn);
-          }
-          if (!gb) {
-            gb = await searchGoogle(book.title, book.author);
-          }
+          const gb = await lookupBook(book);
 
           if (!gb) {
-            log(`[NO MATCH] "${book.title}"`, 'error');
+            log(`  [NO MATCH] Could not find on Google Books`, 'error');
             noMatch++;
-            await sleep(200);
+            await sleep(250);
             continue;
           }
 
           const changes = [];
 
-          if (!book.amazonUrl?.trim()) {
-            const asin = gb.isbn10 || isbn || gb.isbn13;
-            if (asin) {
-              if (!dryRun) book.amazonUrl = `https://www.amazon.com/dp/${asin}?tag=${AFFILIATE_TAG}`;
-              changes.push(`amazonUrl (${asin})`);
-            }
+          // Amazon URL — use ISBN-10 as ASIN, fall back to existing asin field, then ISBN-13
+          const asin = gb.isbn10 || book.asin || gb.isbn13 || book.isbn;
+          if (asin) {
+            const newUrl = `https://www.amazon.com/dp/${asin}?tag=${AFFILIATE_TAG}`;
+            if (!dryRun) { book.amazonUrl = newUrl; book.asin = gb.isbn10 || book.asin || ''; }
+            changes.push(`amazon (${asin})`);
           }
 
-          if (!book.cover?.trim() && gb.cover) {
+          // Cover
+          if (gb.cover) {
             if (!dryRun) book.cover = gb.cover;
             changes.push('cover');
           }
 
-          if (!book.pageCount && gb.pageCount) {
+          // Page count
+          if (gb.pageCount) {
             if (!dryRun) book.pageCount = gb.pageCount;
-            changes.push(`pageCount (${gb.pageCount})`);
+            changes.push(`pages (${gb.pageCount})`);
           }
 
+          // Backfill ISBN if missing
           if (!book.isbn?.trim() && (gb.isbn13 || gb.isbn10)) {
             if (!dryRun) book.isbn = gb.isbn13 || gb.isbn10;
             changes.push(`isbn (${gb.isbn13 || gb.isbn10})`);
           }
 
           if (changes.length > 0) {
-            log(`[UPDATED] "${book.title}" — ${changes.join(', ')}`, 'updated');
+            log(`  [UPDATED] ${changes.join(', ')}`, 'updated');
             updated++;
           } else {
-            complete++;
+            log(`  [NO DATA] Google Books had no useful fields`, 'error');
+            noMatch++;
           }
 
-          await sleep(200);
+          await sleep(250);
         }
 
         log('---');
-        log(`Updated: ${updated} | Already complete: ${complete} | No match: ${noMatch}`, 'info');
+        log(`Updated: ${updated} | No match/no data: ${noMatch}`, 'info');
 
         if (!dryRun && updated > 0) {
           log('Saving to KV...');
