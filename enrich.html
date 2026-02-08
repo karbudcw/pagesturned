@@ -24,7 +24,7 @@
 </head>
 <body>
   <h1>Enrich Books</h1>
-  <p class="subtitle">Overwrites Amazon URL, cover, and page count for all books without reviews using Google Books API.</p>
+  <p class="subtitle">Overwrites Amazon URL, cover, and page count for all books without reviews using Open Library API.</p>
   <div class="buttons">
     <button class="btn" onclick="run(true)">Dry Run (Preview)</button>
     <button class="btn btn-danger" onclick="run(false)">Live Run (Save Changes)</button>
@@ -46,40 +46,61 @@
 
     function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-    async function lookupBook(book) {
-      // Try ISBN first if available
-      if (book.isbn?.trim()) {
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${book.isbn.trim()}&maxResults=1`);
-        const data = await res.json();
-        if (data.items?.length) return parseResult(data.items[0]);
+    // Convert ISBN-13 to ISBN-10 mathematically
+    // ISBN-13: 978-X-XXX-XXXXX-X → take digits 4-12, compute new check digit
+    function isbn13to10(isbn13) {
+      const clean = isbn13.replace(/[^0-9]/g, '');
+      if (clean.length !== 13 || !clean.startsWith('978')) return null;
+      const digits = clean.slice(3, 12); // 9 digits
+      let sum = 0;
+      for (let i = 0; i < 9; i++) {
+        sum += parseInt(digits[i]) * (10 - i);
       }
-
-      // Fallback: search by title + author
-      let q = book.title;
-      if (book.author) q += ' ' + book.author;
-      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=3`);
-      const data = await res.json();
-      if (!data.items?.length) return null;
-
-      // Try to match by title
-      const norm = t => (t || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-      const target = norm(book.title);
-      const match = data.items.find(i => {
-        const t = norm(i.volumeInfo.title);
-        return t.includes(target) || target.includes(t);
-      }) || data.items[0];
-
-      return parseResult(match);
+      const check = (11 - (sum % 11)) % 11;
+      return digits + (check === 10 ? 'X' : String(check));
     }
 
-    function parseResult(item) {
-      const vol = item.volumeInfo;
-      const ids = vol.industryIdentifiers || [];
-      const isbn10 = ids.find(i => i.type === 'ISBN_10')?.identifier || null;
-      const isbn13 = ids.find(i => i.type === 'ISBN_13')?.identifier || null;
-      let cover = vol.imageLinks?.thumbnail?.replace('http://', 'https://') || null;
-      if (cover) cover = cover.replace('zoom=1', 'zoom=0').replace('&edge=curl', '');
-      return { isbn10, isbn13, cover, pageCount: vol.pageCount || null };
+    // Look up book via Open Library
+    async function lookupByISBN(isbn) {
+      const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
+      const data = await res.json();
+      const entry = data[`ISBN:${isbn}`];
+      if (!entry) return null;
+      return {
+        pageCount: entry.number_of_pages || null,
+        cover: entry.cover?.medium || entry.cover?.large || null,
+        isbn10: null // We'll compute this separately
+      };
+    }
+
+    // Search Open Library by title + author
+    async function searchByTitle(title, author) {
+      let q = encodeURIComponent(title);
+      if (author) q += '+' + encodeURIComponent(author);
+      const res = await fetch(`https://openlibrary.org/search.json?q=${q}&limit=3`);
+      const data = await res.json();
+      if (!data.docs?.length) return null;
+
+      // Find best match
+      const norm = t => (t || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const target = norm(title);
+      const match = data.docs.find(d => {
+        const t = norm(d.title);
+        return t.includes(target) || target.includes(t);
+      }) || data.docs[0];
+
+      // Get ISBN from search results
+      const isbn13 = match.isbn?.find(i => i.length === 13 && i.startsWith('978')) || null;
+      const isbn10 = match.isbn?.find(i => i.length === 10) || null;
+      const coverId = match.cover_i;
+
+      return {
+        pageCount: match.number_of_pages_median || null,
+        cover: coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` : null,
+        isbn13,
+        isbn10,
+        foundTitle: match.title
+      };
     }
 
     async function run(dryRun) {
@@ -102,54 +123,71 @@
 
         for (let i = 0; i < toEnrich.length; i++) {
           const book = toEnrich[i];
-          log(`[${i + 1}/${toEnrich.length}] Looking up "${book.title}"...`, 'skipped');
+          log(`[${i + 1}/${toEnrich.length}] "${book.title}"`, 'skipped');
 
-          const gb = await lookupBook(book);
+          let result = null;
+          let isbn10 = null;
 
-          if (!gb) {
-            log(`  [NO MATCH] Could not find on Google Books`, 'error');
+          // Try ISBN lookup first
+          if (book.isbn?.trim()) {
+            result = await lookupByISBN(book.isbn.trim());
+            isbn10 = isbn13to10(book.isbn.trim());
+          }
+
+          // Fallback to title search
+          if (!result) {
+            const search = await searchByTitle(book.title, book.author);
+            if (search) {
+              result = search;
+              isbn10 = search.isbn10 || (search.isbn13 ? isbn13to10(search.isbn13) : null);
+              if (!isbn10 && search.isbn10) isbn10 = search.isbn10;
+            }
+          }
+
+          if (!result) {
+            log(`  [NO MATCH]`, 'error');
             noMatch++;
-            await sleep(250);
+            await sleep(500);
             continue;
           }
 
           const changes = [];
 
-          // Amazon URL — use ISBN-10 as ASIN, fall back to existing asin field, then ISBN-13
-          const asin = gb.isbn10 || book.asin || gb.isbn13 || book.isbn;
+          // Amazon URL from ISBN-10 (= ASIN for books)
+          const asin = isbn10 || book.asin;
           if (asin) {
             const newUrl = `https://www.amazon.com/dp/${asin}?tag=${AFFILIATE_TAG}`;
-            if (!dryRun) { book.amazonUrl = newUrl; book.asin = gb.isbn10 || book.asin || ''; }
+            if (!dryRun) { book.amazonUrl = newUrl; book.asin = asin; }
             changes.push(`amazon (${asin})`);
           }
 
           // Cover
-          if (gb.cover) {
-            if (!dryRun) book.cover = gb.cover;
+          if (result.cover) {
+            if (!dryRun) book.cover = result.cover;
             changes.push('cover');
           }
 
           // Page count
-          if (gb.pageCount) {
-            if (!dryRun) book.pageCount = gb.pageCount;
-            changes.push(`pages (${gb.pageCount})`);
+          if (result.pageCount) {
+            if (!dryRun) book.pageCount = result.pageCount;
+            changes.push(`pages (${result.pageCount})`);
           }
 
-          // Backfill ISBN if missing
-          if (!book.isbn?.trim() && (gb.isbn13 || gb.isbn10)) {
-            if (!dryRun) book.isbn = gb.isbn13 || gb.isbn10;
-            changes.push(`isbn (${gb.isbn13 || gb.isbn10})`);
+          // Backfill ISBN
+          if (!book.isbn?.trim() && result.isbn13) {
+            if (!dryRun) book.isbn = result.isbn13;
+            changes.push(`isbn (${result.isbn13})`);
           }
 
           if (changes.length > 0) {
             log(`  [UPDATED] ${changes.join(', ')}`, 'updated');
             updated++;
           } else {
-            log(`  [NO DATA] Google Books had no useful fields`, 'error');
+            log(`  [NO DATA] Open Library had no useful fields`, 'error');
             noMatch++;
           }
 
-          await sleep(250);
+          await sleep(500);
         }
 
         log('---');
