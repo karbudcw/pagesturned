@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pages Turned</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <!-- Open Graph / Social Media -->
+  <meta property="og:title" content="Pages Turned">
+  <meta property="og:description" content="The TL;DR of book reviews">
+  <meta property="og:image" content="icon.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Pages Turned">
+  <meta name="twitter:description" content="The TL;DR of book reviews">
+  <meta name="twitter:image" content="icon.png">
+
+  <!-- General Meta -->
+  <meta name="description" content="The TL;DR of book reviews. One-sentence reviews with a 1-100 rating system.">
+  <meta name="theme-color" content="#2D3E50">
+
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&family=Architects+Daughter&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & Base ─────────────────────────────────── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #faf9f7;
+      color: #2D3E50;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 8px 24px 24px;
+    }
+
+    /* ── Header ────────────────────────────────────────── */
+    .header-border {
+      border-bottom: 1px solid #e8e6e3;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px;
+      gap: 24px;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-icon {
+      height: 90px;
+      width: auto;
+    }
+
+    .logo-link {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .brand-name {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #2D3E50;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      color: #555;
+      font-size: 1.0rem;
+    }
+
+    /* ── Navigation ────────────────────────────────────── */
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    nav button {
+      background: none;
+      border: 1px solid #ddd;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    nav button:hover { border-color: #999; }
+    nav button.active { background: #2D3E50; color: #fff; border-color: #2D3E50; font-weight: 500; }
+
+    .mobile-nav { display: none !important; position: relative; }
+
+    /* ── Dropdown ──────────────────────────────────────── */
+    .dropdown { position: relative; display: inline-block; }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background: white;
+      min-width: 120px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      z-index: 1000;
+      top: 100%;
+      margin-top: 8px;
+      border: 1px solid #e8e6e3;
+    }
+
+    .dropdown-content button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px 16px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: background 0.2s;
+      border-radius: 0;
+    }
+
+    .dropdown-content button:first-child { border-radius: 8px 8px 0 0; }
+    .dropdown-content button:last-child { border-radius: 0 0 8px 8px; }
+    .dropdown-content button:hover { background: #f5f5f5; }
+    .dropdown.active .dropdown-content { display: block; }
+
+    /* ── Buttons ───────────────────────────────────────── */
+    .btn {
+      padding: 10px 20px;
+      background: #2D3E50;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .btn:hover { background: #3d4e60; }
+    .btn-secondary { background: #f5f5f5; color: #2D3E50; border: 1px solid #ddd; }
+    .btn-secondary:hover { background: #eee; }
+    .btn-danger { background: #fff; color: #c44; border: 1px solid #ddd; }
+    .btn-small { padding: 6px 12px; font-size: 12px; }
+
+    /* ── Form Elements ─────────────────────────────────── */
+    input, textarea, select {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #999; }
+    label { font-size: 14px; color: #666; display: block; margin-bottom: 6px; }
+    .form-group { margin-bottom: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .format-selector { display: flex; gap: 8px; }
+
+    .format-btn {
+      padding: 8px 16px;
+      border: 2px solid #ddd;
+      background: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .format-btn:hover { border-color: #999; }
+    .format-btn.selected { border-color: #2D3E50; background: #f0f4f8; }
+
+    /* ── Cards ─────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border: 1px solid #e8e6e3;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 20px;
+      margin-bottom: 36px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      max-width: 760px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(45, 62, 80, 0.15);
+    }
+
+    /* ── Book Card Grid (Desktop) ─────────────────────── */
+    .book-card-grid {
+      display: grid;
+      grid-template-columns: 36px auto 1fr 50px;
+      grid-template-rows: auto auto;
+      align-items: start;
+      column-gap: 24px;
+      row-gap: 28px;
+    }
+
+    .book-card-grid .book-rank {
+      grid-column: 1;
+      grid-row: 1;
+      justify-self: center;
+      line-height: 1;
+      font-family: 'Architects Daughter', cursive;
+      font-size: 1.8rem;
+    }
+
+    .book-card-grid .book-cover  { grid-column: 2; grid-row: 1; }
+    .book-card-grid .book-info   { grid-column: 3; grid-row: 1; }
+    .book-card-grid .rating-circle { grid-column: 4; grid-row: 1; justify-self: center; }
+    .book-card-grid .book-review { grid-column: 2 / 4; grid-row: 2; margin-top: 0; }
+    .book-card-grid .book-actions { grid-column: 1 / -1; grid-row: 3; }
+
+    /* ── Book Elements ─────────────────────────────────── */
+    .book-cover {
+      width: 65px;
+      height: 100px;
+      background: #eee;
+      border-radius: 4px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .book-cover a { display: block; width: 100%; height: 100%; }
+    .book-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+    .book-info { flex: 1; min-width: 0; }
+
+    .book-title {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #2D3E50;
+      margin-bottom: 6px;
+      margin-top: 0;
+    }
+
+    .book-title-link { color: #2D3E50; text-decoration: none; }
+    .book-title-link:hover { text-decoration: underline; }
+
+    .book-author { color: #888; font-size: 0.85rem; margin-bottom: 4px; }
+    .book-date-read { color: #999; font-size: 0.85rem; margin-bottom: 0; }
+
+    .book-review {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.05rem;
+      color: #2D3E50;
+      line-height: 1.5;
+      margin-top: 0;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .book-review::before {
+      content: '\201C';
+      position: absolute;
+      left: 0;
+      top: -4px;
+      font-size: 2.5rem;
+      color: #2D3E50;
+      font-family: Georgia, serif;
+      line-height: 1;
+      opacity: 0.5;
+    }
+
+    .book-actions { display: flex; gap: 8px; align-items: flex-start; }
+
+    .book-rank .hash { color: #bbb; }
+    .book-rank .num  { color: #888; }
+
+    /* ── Rating Circle ─────────────────────────────────── */
+    .rating-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      position: relative;
+      cursor: help;
+    }
+
+    .rating-circle:hover::after {
+      content: '1-100 scale';
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2D3E50;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 100;
+    }
+
+    .rating-unrated { background: #ccc; font-size: 11px; }
+
+    /* ── Stats Bar ─────────────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      text-align: center;
+      gap: 16px;
+      margin: 8px 0 32px;
+      background: #fff;
+      border: 1px solid #e8e6e3;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .stat-number {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.75rem;
+      color: #2D3E50;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-with-tooltip { position: relative; cursor: help; }
+
+    .stat-with-tooltip:hover::after {
+      content: '1-100 scale';
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2D3E50;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .stat-last-update { position: relative; cursor: help; }
+
+    /* ── Section Title ─────────────────────────────────── */
+    .section-title {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.35rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e8e6e3;
+      color: #2D3E50;
+    }
+
+    /* ── Layout Helpers ────────────────────────────────── */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .back-link {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #666;
+      font-size: 14px;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    .back-link:hover { color: #2D3E50; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #888; }
+    .loading { text-align: center; padding: 40px; color: #888; }
+    .error { color: #c44; font-size: 13px; margin-top: 8px; }
+
+    /* ── Distribution Chart ────────────────────────────── */
+    .distribution-chart { max-width: 400px; margin: 0 auto 32px; }
+
+    .distribution-title {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1rem;
+      color: #2D3E50;
+      margin-bottom: 16px;
+    }
+
+    .chart-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 120px;
+      padding: 0 10px;
+      gap: 12px;
+    }
+
+    .chart-bar-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      height: 100%;
+    }
+
+    .chart-bar-count { font-size: 0.7rem; color: #666; margin-bottom: 4px; }
+
+    .chart-bar-bg {
+      flex: 1;
+      width: 100%;
+      max-width: 48px;
+      background: #f0f0f0;
+      border-radius: 3px;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .chart-bar {
+      width: 100%;
+      border-radius: 3px;
+      transition: height 0.3s ease;
+    }
+
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 10px 0;
+      gap: 12px;
+      border-top: 1px solid #e8e6e3;
+    }
+
+    .chart-labels span { flex: 1; text-align: center; font-size: 0.65rem; color: #888; }
+
+    /* ── Pagination ────────────────────────────────────── */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin: 32px 0;
+    }
+
+    .pagination-btn {
+      background: none;
+      border: 1px solid #ddd;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+      color: #2D3E50;
+    }
+
+    .pagination-btn:hover:not(.disabled) { border-color: #2D3E50; background: #f5f5f5; }
+    .pagination-btn.disabled { color: #ccc; cursor: not-allowed; }
+
+    .pagination-numbers { display: flex; gap: 4px; align-items: center; }
+
+    .pagination-num {
+      background: none;
+      border: 1px solid transparent;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+      color: #666;
+    }
+
+    .pagination-num:hover:not(.active) { background: #f5f5f5; }
+    .pagination-num.active { background: #2D3E50; color: #fff; font-weight: 500; }
+    .pagination-ellipsis { color: #999; font-size: 14px; padding: 0 4px; }
+
+    /* ── Footer ────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      border-top: 1px solid #e8e6e3;
+      margin-top: 40px;
+      color: #888;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* ── Mobile ────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 20px 24px;
+        gap: 0;
+      }
+
+      .logo-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .logo-icon  { height: 120px; }
+      .brand-text { text-align: center; }
+      .brand-name { font-size: 2.5rem; margin-bottom: 8px; }
+      .tagline    { font-size: 1.25rem; }
+
+      nav.desktop-nav { display: none; }
+
+      .mobile-nav {
+        display: flex !important;
+        margin-top: 20px;
+      }
+
+      .mobile-nav-btn {
+        background: #2D3E50;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: inherit;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .mobile-nav .dropdown-content {
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 160px;
+      }
+
+      .top-bar { margin-bottom: 20px; }
+      .stats { margin-bottom: 32px; grid-template-columns: repeat(2, 1fr); }
+      .section-title { margin-top: 8px; }
+      .form-row { grid-template-columns: 1fr; }
+      .book-actions { flex-direction: column; }
+      .book-review { font-size: 1rem; margin-top: 12px; }
+
+      .card.book-card {
+        max-width: 100%;
+        padding: 28px;
+        padding-top: 84px;
+        margin-left: 8px;
+        margin-right: 8px;
+      }
+
+      .book-card-grid {
+        display: grid;
+        grid-template-columns: 55px 1fr;
+        grid-template-rows: auto auto auto auto;
+        gap: 12px 16px;
+        position: relative;
+      }
+
+      .book-card-grid .book-rank {
+        position: absolute;
+        top: -60px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 2.5rem;
+        justify-self: unset;
+      }
+
+      .book-card-grid .book-cover {
+        grid-column: 1;
+        grid-row: 1;
+        width: 55px;
+        height: 85px;
+      }
+
+      .book-card-grid .book-info  { grid-column: 2; grid-row: 1; }
+      .book-card-grid .book-title { margin-top: -3px; }
+
+      .book-card-grid .book-review {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        margin-top: 14px;
+      }
+
+      .book-card-grid .rating-circle {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        justify-self: center;
+        margin-top: 12px;
+      }
+
+      .book-card-grid .book-actions {
+        grid-column: 1 / -1;
+        grid-row: 4;
+      }
+
+      .pagination { gap: 8px; flex-wrap: wrap; }
+      .pagination-btn { padding: 8px 12px; font-size: 13px; }
+      .pagination-num { width: 32px; height: 32px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"><div class="loading">Loading...</div></div>
+  <script>
+    'use strict';
+
+    /* ── Constants ─────────────────────────────────────── */
+    const BOOKS_PER_PAGE = 10;
+    const ADMIN_KEY = 'CV!vxUCQvr*p47xNX@ZB';
+
+    const EMOJI = {
+      trophy:     '\u{1F3C6}',
+      book:       '\u{1F4D6}',
+      phone:      '\u{1F4F1}',
+      headphones: '\u{1F3A7}',
+      floppy:     '\u{1F4BE}',
+      dash:       '\u{2014}',
+      leftArrow:  '\u2190',
+      downArrow:  '\u25BC'
+    };
+
+    const RATING_COLORS = [
+      [95, '#1B5E20'], [90, '#2E7D32'], [85, '#388E3C'], [80, '#43A047'],
+      [75, '#FBC02D'], [70, '#F9A825'],
+      [65, '#FB8C00'], [60, '#EF6C00'],
+      [50, '#EF5350'], [40, '#F44336'], [30, '#E53935'], [20, '#D32F2F'], [10, '#C62828'],
+      [0,  '#B71C1C']
+    ];
+
+    const DISTRIBUTION_BUCKETS = [
+      { label: '90-100', min: 90, max: 100, color: '#1B5E20' },
+      { label: '80-89',  min: 80, max: 89,  color: '#43A047' },
+      { label: '70-79',  min: 70, max: 79,  color: '#FBC02D' },
+      { label: '60-69',  min: 60, max: 69,  color: '#EF6C00' },
+      { label: '50-59',  min: 50, max: 59,  color: '#EF5350' },
+      { label: '0-49',   min: 0,  max: 49,  color: '#B71C1C' }
+    ];
+
+    const FORMAT_EMOJI = {
+      ebook:     EMOJI.phone,
+      audiobook: EMOJI.headphones,
+      physical:  EMOJI.book
+    };
+
+    const MONTH_ABBREV = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    /* ── State ─────────────────────────────────────────── */
+    let books = [];
+    let currentView = 'list';
+    let yearFilter = 'all-time';
+    let currentPage = 1;
+    let showAllPages = false;
+    let editingBook = null;
+    let form = defaultForm();
+    let isbnInput = '';
+    let loading = true;
+    let errorMsg = '';
+    let isAdmin = false;
+    let dropdownOpen = false;
+
+    /* ── Init ──────────────────────────────────────────── */
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === ADMIN_KEY) {
+      isAdmin = true;
+    }
+
+    /* ── Helpers ───────────────────────────────────────── */
+    function defaultForm() {
+      return {
+        title: '', author: '', year: '', cover: '', rating: null,
+        review: '', dateRead: '', isbn: '', pageCount: null,
+        format: 'physical', amazonUrl: ''
+      };
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function getColor(r) {
+      if (r === null) return '#ccc';
+      for (const [threshold, color] of RATING_COLORS) {
+        if (r >= threshold) return color;
+      }
+      return '#B71C1C';
+    }
+
+    function getYearFromDate(d) {
+      return d ? d.slice(0, 4) : 'Unknown';
+    }
+
+    function getYearGroup(d) {
+      const y = getYearFromDate(d);
+      if (!y || y === 'Unknown') return 'Older';
+      const n = parseInt(y, 10);
+      return n >= 2020 ? y : 'Older';
+    }
+
+    function getFormatEmoji(f) {
+      return FORMAT_EMOJI[f] || EMOJI.book;
+    }
+
+    function formatDateRead(d) {
+      if (!d) return '';
+      // Parse as local date to avoid timezone shift
+      const parts = d.split('-');
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      const year = parts[0];
+      return `Read ${MONTH_ABBREV[monthIdx]} ${year}`;
+    }
+
+    function parseIntOrNull(val) {
+      if (val === null || val === undefined || String(val).trim() === '') return null;
+      const n = parseInt(val, 10);
+      return isNaN(n) ? null : n;
+    }
+
+    /* ── Data Operations ──────────────────────────────── */
+    async function loadBooks() {
+      try {
+        const res = await fetch('/api/books');
+        const data = await res.json();
+        books = data.books || [];
+      } catch (e) {
+        books = [];
+      }
+      loading = false;
+      render();
+    }
+
+    async function saveBooks() {
+      try {
+        await fetch('/api/books', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${ADMIN_KEY}`
+          },
+          body: JSON.stringify({ books })
+        });
+      } catch (e) {
+        console.error('Save failed:', e);
+      }
+      render();
+    }
+
+    async function fetchISBN() {
+      if (!isbnInput.trim()) return;
+      errorMsg = '';
+      try {
+        const isbn = isbnInput.trim();
+        const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
+        const data = await res.json();
+        const b = data[`ISBN:${isbn}`];
+        if (b) {
+          form.title = b.title || form.title;
+          form.author = b.authors?.[0]?.name || form.author;
+          form.year = b.publish_date?.match(/\d{4}/)?.[0] || form.year;
+          form.cover = `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`;
+          form.isbn = isbn;
+          form.pageCount = b.number_of_pages || form.pageCount;
+          form.amazonUrl = `https://www.amazon.com/dp/${isbn}?tag=pagesturned-20`;
+        } else {
+          errorMsg = 'Book not found.';
+        }
+      } catch (e) {
+        errorMsg = 'Failed to fetch.';
+      }
+      render();
+    }
+
+    /* ── Form Operations (single source of truth: form object) ── */
+    function syncFormFromDOM() {
+      const fields = {
+        title: 'input-title', author: 'input-author', year: 'input-year',
+        cover: 'input-cover', amazonUrl: 'input-amazonUrl', dateRead: 'input-dateRead',
+        review: 'input-review'
+      };
+      for (const [key, id] of Object.entries(fields)) {
+        const el = document.getElementById(id);
+        if (el) form[key] = el.value;
+      }
+      const ratingEl = document.getElementById('input-rating');
+      if (ratingEl) form.rating = parseIntOrNull(ratingEl.value);
+
+      const pageCountEl = document.getElementById('input-pageCount');
+      if (pageCountEl) form.pageCount = parseIntOrNull(pageCountEl.value);
+    }
+
+    function resetForm() {
+      form = defaultForm();
+      isbnInput = '';
+      errorMsg = '';
+    }
+
+    function openAdd() {
+      resetForm();
+      form.dateRead = new Date().toISOString().split('T')[0];
+      editingBook = null;
+      currentView = 'edit';
+      render();
+    }
+
+    function openEdit(bookId) {
+      const book = books.find(b => b.id === bookId);
+      if (!book) return;
+      form = {
+        title: book.title || '',
+        author: book.author || '',
+        year: String(book.year || ''),
+        cover: book.cover || '',
+        rating: book.rating,
+        review: book.review || '',
+        dateRead: book.dateRead || '',
+        isbn: book.isbn || '',
+        pageCount: book.pageCount || null,
+        format: book.format || 'physical',
+        amazonUrl: book.amazonUrl || ''
+      };
+      isbnInput = book.isbn || '';
+      editingBook = book;
+      currentView = 'edit';
+      render();
+    }
+
+    function deleteBook(id) {
+      if (confirm('Delete this book?')) {
+        books = books.filter(b => b.id !== id);
+        saveBooks();
+      }
+    }
+
+    function saveBook() {
+      // Sync latest DOM values into form object
+      syncFormFromDOM();
+
+      const title = form.title.trim();
+      if (!title) { errorMsg = 'Title required'; render(); return; }
+
+      const bookData = {
+        title,
+        author: form.author.trim(),
+        year: parseIntOrNull(form.year),
+        cover: form.cover.trim(),
+        amazonUrl: form.amazonUrl.trim(),
+        dateRead: form.dateRead,
+        pageCount: form.pageCount,
+        rating: form.rating,
+        review: form.review.trim(),
+        format: form.format,
+        isbn: form.isbn || ''
+      };
+
+      if (editingBook) {
+        books = books.map(b => b.id === editingBook.id ? { ...b, ...bookData } : b);
+      } else {
+        books.push({ ...bookData, id: Date.now() });
+      }
+
+      saveBooks();
+      currentView = 'list';
+      resetForm();
+    }
+
+    /* ── Navigation ────────────────────────────────────── */
+    function goBack() { currentView = 'list'; resetForm(); render(); }
+    function setYear(y) { yearFilter = y; currentPage = 1; showAllPages = false; dropdownOpen = false; render(); }
+
+    function setPage(p) {
+      currentPage = p;
+      showAllPages = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      render();
+    }
+
+    function showAll() { showAllPages = true; render(); }
+
+    function toggleDropdown() { dropdownOpen = !dropdownOpen; render(); }
+
+    function setFormat(f, evt) {
+      form.format = f;
+      // Update button styling directly without re-render to preserve form data
+      document.querySelectorAll('.format-btn').forEach(btn => btn.classList.remove('selected'));
+      if (evt && evt.target) evt.target.classList.add('selected');
+    }
+
+    function exportData() {
+      const dataStr = JSON.stringify(books, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `pages-turned-backup-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    /* ── Filtering & Stats ─────────────────────────────── */
+    function filterBooks() {
+      const currentYear = new Date().getFullYear();
+      let filtered;
+
+      if (yearFilter === 'all-time') {
+        filtered = [...books];
+      } else if (yearFilter === 'current') {
+        filtered = books.filter(b => getYearGroup(b.dateRead) === String(currentYear));
+      } else {
+        filtered = books.filter(b => getYearGroup(b.dateRead) === yearFilter);
+      }
+
+      return filtered.sort((a, b) => {
+        if (a.rating === null && b.rating === null) return (a.title || '').localeCompare(b.title || '');
+        if (a.rating === null) return 1;
+        if (b.rating === null) return -1;
+        return b.rating - a.rating;
+      });
+    }
+
+    function getMostRecentBook() {
+      if (books.length === 0) return null;
+      return books.reduce((latest, book) => {
+        if (!book.dateRead) return latest;
+        if (!latest || !latest.dateRead) return book;
+        return new Date(book.dateRead) > new Date(latest.dateRead) ? book : latest;
+      }, null);
+    }
+
+    function getViewLabel(prefix) {
+      const currentYear = new Date().getFullYear();
+      const yearName = yearFilter === 'all-time' ? 'All-Time'
+                     : yearFilter === 'current' ? String(currentYear)
+                     : yearFilter;
+      return `${yearName} ${prefix}`;
+    }
+
+    /* ── Render Helpers ────────────────────────────────── */
+    function ratingCircleHtml(r) {
+      const color = getColor(r);
+      const label = r === null ? EMOJI.dash : r;
+      const cls = r === null ? 'rating-circle rating-unrated' : 'rating-circle';
+      return `<div class="${cls}" style="background:${color};box-shadow:0 3px 10px ${color}44">${label}</div>`;
+    }
+
+    function paginationHtml(totalPageCount) {
+      if (totalPageCount <= 1) return '';
+
+      if (showAllPages) {
+        return `<div class="pagination">
+          <button class="pagination-btn" onclick="setPage(1)">Show Less</button>
+        </div>`;
+      }
+
+      const prevBtn = currentPage > 1
+        ? `<button class="pagination-btn" onclick="setPage(${currentPage - 1})">\u2190 Prev</button>`
+        : `<button class="pagination-btn disabled" disabled>\u2190 Prev</button>`;
+
+      const nextBtn = currentPage < totalPageCount
+        ? `<button class="pagination-btn" onclick="setPage(${currentPage + 1})">Next \u2192</button>`
+        : `<button class="pagination-btn disabled" disabled>Next \u2192</button>`;
+
+      // Build page numbers with ellipsis
+      const pages = [1];
+      if (currentPage > 3) pages.push('...');
+      for (let p = Math.max(2, currentPage - 1); p <= Math.min(totalPageCount - 1, currentPage + 1); p++) {
+        if (!pages.includes(p)) pages.push(p);
+      }
+      if (currentPage < totalPageCount - 2) pages.push('...');
+      if (totalPageCount > 1 && !pages.includes(totalPageCount)) pages.push(totalPageCount);
+
+      const numbersHtml = pages.map(p => {
+        if (p === '...') return `<span class="pagination-ellipsis">...</span>`;
+        if (p === currentPage) return `<button class="pagination-num active">${p}</button>`;
+        return `<button class="pagination-num" onclick="setPage(${p})">${p}</button>`;
+      }).join('');
+
+      return `<div class="pagination">
+        ${prevBtn}
+        <div class="pagination-numbers">${numbersHtml}</div>
+        ${nextBtn}
+        <button class="pagination-btn" onclick="showAll()">Show All</button>
+      </div>`;
+    }
+
+    function distributionChartHtml(filtered) {
+      const buckets = DISTRIBUTION_BUCKETS.map(d => ({ ...d, count: 0 }));
+
+      filtered.forEach(book => {
+        if (book.rating !== null) {
+          const bucket = buckets.find(d => book.rating >= d.min && book.rating <= d.max);
+          if (bucket) bucket.count++;
+        }
+      });
+
+      const maxCount = Math.max(...buckets.map(d => d.count), 1);
+
+      return `
+        <div class="distribution-chart">
+          <div class="distribution-title">${getViewLabel('Rating Distribution')}</div>
+          <div class="chart-container">
+            ${buckets.map(d => `
+              <div class="chart-bar-group">
+                <span class="chart-bar-count">${d.count}</span>
+                <div class="chart-bar-bg">
+                  <div class="chart-bar" style="height:${(d.count / maxCount) * 100}%;background:${d.color};"></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="chart-labels">
+            ${buckets.map(d => `<span>${d.label}</span>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    /* ── Render: Book List ─────────────────────────────── */
+    function renderList() {
+      if (loading) return '<div class="loading">Loading...</div>';
+
+      const currentYear = new Date().getFullYear();
+      const filtered = filterBooks();
+      const mostRecent = getMostRecentBook();
+
+      // Stats
+      const rated = filtered.filter(b => b.rating !== null);
+      const avg = rated.length
+        ? (rated.reduce((s, b) => s + b.rating, 0) / rated.length).toFixed(0)
+        : EMOJI.dash;
+      const totalPageCount = filtered.reduce((sum, b) => sum + (b.pageCount || 0), 0);
+
+      // Year navigation
+      const allYears = [...new Set(books.map(b => getYearGroup(b.dateRead)).filter(y => y !== 'Older' && y !== 'Unknown'))];
+      const olderYears = allYears.filter(y => parseInt(y, 10) < currentYear).sort((a, b) => b - a);
+      const isOlderYearSelected = olderYears.includes(yearFilter);
+
+      const getMobileNavLabel = () => {
+        const arrow = ' ' + EMOJI.downArrow;
+        if (yearFilter === 'all-time') return `${EMOJI.trophy} All Time${arrow}`;
+        if (yearFilter === 'current') return `${currentYear}${arrow}`;
+        return `${yearFilter}${arrow}`;
+      };
+
+      // Last update display
+      let lastUpdateDisplay = EMOJI.dash;
+      let lastUpdateTooltip = '';
+      if (mostRecent && mostRecent.dateRead) {
+        const parts = mostRecent.dateRead.split('-');
+        lastUpdateDisplay = `${parts[1]}/${parts[2]}/${parts[0].slice(-2)}`;
+        lastUpdateTooltip = `${escapeHtml(mostRecent.title)} by ${escapeHtml(mostRecent.author || 'Unknown')}`;
+      }
+
+      // Older years dropdown (shared between desktop & mobile)
+      const olderDropdownItems = olderYears.map(y => `<button onclick="setYear('${y}')">${y}</button>`).join('');
+
+      let html = `
+        <div class="header-border">
+        <header>
+          <div class="logo-section">
+            <a href="/" class="logo-link"><img src="icon.png" alt="Pages Turned" class="logo-icon"></a>
+            <a href="/" class="logo-link">
+              <div class="brand-text">
+                <span class="brand-name">Pages Turned</span>
+                <span class="tagline">The TL;DR of book reviews</span>
+              </div>
+            </a>
+          </div>
+          <nav class="desktop-nav">
+            <button class="${yearFilter === 'all-time' ? 'active' : ''}" onclick="setYear('all-time')">${EMOJI.trophy} All Time</button>
+            <button class="${yearFilter === 'current' ? 'active' : ''}" onclick="setYear('current')">${currentYear}</button>
+            ${olderYears.length > 0 ? `
+              <div class="dropdown ${dropdownOpen ? 'active' : ''}">
+                <button class="${isOlderYearSelected ? 'active' : ''}" onclick="toggleDropdown()">${isOlderYearSelected ? yearFilter : 'Older'}</button>
+                <div class="dropdown-content">${olderDropdownItems}</div>
+              </div>` : ''}
+          </nav>
+          <div class="mobile-nav dropdown ${dropdownOpen ? 'active' : ''}">
+            <button class="mobile-nav-btn" onclick="toggleDropdown()">${getMobileNavLabel()}</button>
+            <div class="dropdown-content">
+              <button onclick="setYear('all-time')">${EMOJI.trophy} All Time</button>
+              <button onclick="setYear('current')">${currentYear}</button>
+              ${olderDropdownItems}
+            </div>
+          </div>
+        </header>
+        </div>
+        <div class="container">
+          ${isAdmin ? `<div class="top-bar">
+            <button class="btn btn-secondary btn-small" onclick="exportData()">${EMOJI.floppy} Backup Data</button>
+            <button class="btn" onclick="openAdd()">+ Add Book</button>
+          </div>` : ''}
+          <div class="stats">
+            <div><div class="stat-number">${filtered.length}</div><div class="stat-label">Books</div></div>
+            <div><div class="stat-number">${totalPageCount.toLocaleString()}</div><div class="stat-label">Pages</div></div>
+            <div class="stat-last-update" ${lastUpdateTooltip ? `data-book="${lastUpdateTooltip}"` : ''}><div class="stat-number">${lastUpdateDisplay}</div><div class="stat-label">Last Update</div></div>
+            <div class="stat-with-tooltip"><div class="stat-number">${avg}</div><div class="stat-label">Avg Rating</div></div>
+          </div>
+          <h2 class="section-title">${getViewLabel('Rankings')}</h2>`;
+
+      if (filtered.length === 0) {
+        html += '<div class="empty-state">No books found.</div>';
+      } else {
+        // Pagination
+        const numPages = Math.ceil(filtered.length / BOOKS_PER_PAGE);
+        const startIdx = showAllPages ? 0 : (currentPage - 1) * BOOKS_PER_PAGE;
+        const endIdx = showAllPages ? filtered.length : startIdx + BOOKS_PER_PAGE;
+        const visibleBooks = filtered.slice(startIdx, endIdx);
+
+        visibleBooks.forEach((book, i) => {
+          const rank = startIdx + i + 1;
+          const safeTitle = escapeHtml(book.title);
+          const safeAuthor = escapeHtml(book.author);
+          const safeReview = escapeHtml(book.review);
+
+          const titleHtml = book.amazonUrl
+            ? `<a href="${escapeHtml(book.amazonUrl)}" target="_blank" rel="noopener" class="book-title-link">${safeTitle}</a>`
+            : safeTitle;
+
+          const coverHtml = book.cover
+            ? (book.amazonUrl
+              ? `<a href="${escapeHtml(book.amazonUrl)}" target="_blank" rel="noopener"><img src="${escapeHtml(book.cover)}" alt="${safeTitle}" onerror="this.parentElement.parentElement.innerHTML=''"></a>`
+              : `<img src="${escapeHtml(book.cover)}" alt="${safeTitle}" onerror="this.parentElement.innerHTML=''">`)
+            : '';
+
+          const reviewHtml = book.review
+            ? `<div class="book-review">${safeReview}</div>`
+            : '';
+
+          const dateHtml = book.dateRead
+            ? `<p class="book-date-read">${formatDateRead(book.dateRead)} ${getFormatEmoji(book.format || 'physical')}</p>`
+            : '';
+
+          html += `<div class="card book-card">
+            <div class="book-card-grid">
+              <div class="book-rank"><span class="hash">#</span><span class="num">${rank}</span></div>
+              <div class="book-cover">${coverHtml}</div>
+              <div class="book-info">
+                <div class="book-title">${titleHtml}</div>
+                <p class="book-author">${safeAuthor}${book.year ? ` (${book.year})` : ''}</p>
+                ${dateHtml}
+              </div>
+              ${ratingCircleHtml(book.rating)}
+              ${reviewHtml}
+              ${isAdmin ? `<div class="book-actions">
+                <button class="btn btn-secondary btn-small" onclick="openEdit(${book.id})">Edit</button>
+                <button class="btn btn-danger btn-small" onclick="deleteBook(${book.id})">Delete</button>
+              </div>` : ''}
+            </div>
+          </div>`;
+        });
+
+        html += paginationHtml(numPages);
+      }
+
+      html += '</div>';
+      html += `<footer>${distributionChartHtml(filtered)}</footer>`;
+      return html;
+    }
+
+    /* ── Render: Edit Form ─────────────────────────────── */
+    function renderEdit() {
+      const safeTitle = escapeHtml(form.title);
+      const safeAuthor = escapeHtml(form.author);
+      const safeYear = escapeHtml(form.year);
+      const safeCover = escapeHtml(form.cover);
+      const safeAmazonUrl = escapeHtml(form.amazonUrl);
+      const safeReview = escapeHtml(form.review);
+      const ratingVal = form.rating !== null ? form.rating : '';
+      const pageCountVal = form.pageCount !== null ? form.pageCount : '';
+
+      return `
+        <div class="container" style="padding-top:32px">
+          <button class="back-link" onclick="goBack()">${EMOJI.leftArrow} Back</button>
+          <h1 style="font-family:'Libre Baskerville',serif;font-size:1.4rem;font-weight:400;margin:20px 0">${editingBook ? 'Edit Book' : 'Add Book'}</h1>
+          <div class="card">
+            ${!editingBook ? `
+            <div class="form-group">
+              <label>Import from ISBN</label>
+              <div style="display:flex;gap:8px">
+                <input type="text" value="${escapeHtml(isbnInput)}" oninput="isbnInput=this.value" placeholder="e.g. 9780593321201" style="flex:1">
+                <button class="btn" onclick="fetchISBN()">Fetch</button>
+              </div>
+              ${errorMsg ? `<p class="error">${escapeHtml(errorMsg)}</p>` : ''}
+            </div>
+            <hr style="border:none;border-top:1px solid #eee;margin:20px 0">
+            ` : ''}
+            ${form.cover ? `<div style="text-align:center;margin-bottom:16px"><img src="${safeCover}" style="height:120px;border-radius:4px" onerror="this.style.display='none'"></div>` : ''}
+            <div class="form-group">
+              <label>Title *</label>
+              <input type="text" id="input-title" value="${safeTitle}" style="width:100%">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Author</label>
+                <input type="text" id="input-author" value="${safeAuthor}" style="width:100%">
+              </div>
+              <div class="form-group">
+                <label>Year Published</label>
+                <input type="text" id="input-year" value="${safeYear}" style="width:100%">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Cover URL</label>
+              <input type="text" id="input-cover" value="${safeCover}" placeholder="https://..." style="width:100%">
+            </div>
+            <div class="form-group">
+              <label>Amazon URL</label>
+              <input type="text" id="input-amazonUrl" value="${safeAmazonUrl}" placeholder="https://amazon.com/..." style="width:100%">
+            </div>
+            <div class="form-group">
+              <label>Format</label>
+              <div class="format-selector">
+                <button class="format-btn ${form.format === 'physical' ? 'selected' : ''}" onclick="setFormat('physical', event)">${EMOJI.book} Physical</button>
+                <button class="format-btn ${form.format === 'ebook' ? 'selected' : ''}" onclick="setFormat('ebook', event)">${EMOJI.phone} eBook</button>
+                <button class="format-btn ${form.format === 'audiobook' ? 'selected' : ''}" onclick="setFormat('audiobook', event)">${EMOJI.headphones} Audiobook</button>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date Read</label>
+                <input type="date" id="input-dateRead" value="${form.dateRead}">
+              </div>
+              <div class="form-group">
+                <label>Page Count</label>
+                <input type="number" id="input-pageCount" min="1" value="${pageCountVal}" placeholder="Number of pages">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Rating (1-100)</label>
+              <input type="number" id="input-rating" min="1" max="100" value="${ratingVal}" placeholder="Leave blank if unrated">
+            </div>
+            <div class="form-group">
+              <label>Review</label>
+              <textarea id="input-review" rows="4" style="width:100%">${safeReview}</textarea>
+            </div>
+            <button class="btn" onclick="saveBook()" style="width:100%">${editingBook ? 'Save Changes' : 'Add Book'}</button>
+          </div>
+        </div>`;
+    }
+
+    /* ── Master Render ─────────────────────────────────── */
+    function render() {
+      const app = document.getElementById('app');
+      app.innerHTML = currentView === 'edit' ? renderEdit() : renderList();
+
+      // Attach Last Update tooltip (mouseenter/leave avoids stale event listeners)
+      const lastUpdateEl = document.querySelector('.stat-last-update');
+      if (lastUpdateEl && lastUpdateEl.dataset.book) {
+        lastUpdateEl.addEventListener('mouseenter', function() {
+          const existing = this.querySelector('.last-update-tooltip');
+          if (existing) return;
+          const tooltip = document.createElement('div');
+          tooltip.className = 'last-update-tooltip';
+          tooltip.textContent = this.dataset.book;
+          tooltip.style.cssText = 'position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);background:#2D3E50;color:white;padding:4px 12px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:10;';
+          this.appendChild(tooltip);
+        });
+        lastUpdateEl.addEventListener('mouseleave', function() {
+          const tooltip = this.querySelector('.last-update-tooltip');
+          if (tooltip) tooltip.remove();
+        });
+      }
+    }
+
+    /* ── Boot ──────────────────────────────────────────── */
+    loadBooks();
+  </script>
+</body>
+</html>
