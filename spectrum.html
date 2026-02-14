@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pages Turned — Rating Spectrum</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#2D3E50">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&family=Architects+Daughter&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #faf9f7; color: #2D3E50; line-height: 1.6; min-height: 100vh; }
+
+    /* Header */
+    .header-border { border-bottom: 1px solid #e8e6e3; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1100px; margin: 0 auto; padding: 24px;
+    }
+    .logo-section { display: flex; align-items: center; gap: 20px; }
+    .logo-icon { height: 70px; width: auto; }
+    .logo-link { text-decoration: none; color: inherit; }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-name { font-family: 'Libre Baskerville', serif; font-size: 1.5rem; font-weight: 700; color: #2D3E50; margin-bottom: 4px; }
+    .tagline { color: #555; font-size: 0.85rem; }
+    .nav-links { display: flex; gap: 12px; align-items: center; }
+    .nav-links a {
+      text-decoration: none; color: #666; font-size: 14px;
+      padding: 8px 16px; border: 1px solid #ddd; border-radius: 20px; transition: all 0.2s;
+    }
+    .nav-links a:hover { border-color: #999; color: #2D3E50; }
+    .nav-links a.active { background: #2D3E50; color: #fff; border-color: #2D3E50; }
+
+    /* Container */
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+    /* Page title area */
+    .page-header { margin-bottom: 32px; }
+    .page-title {
+      font-family: 'Libre Baskerville', serif; font-size: 1.35rem;
+      font-weight: 500; color: #2D3E50; padding-bottom: 8px;
+      border-bottom: 1px solid #e8e6e3; margin-bottom: 8px;
+    }
+    .page-subtitle { font-size: 0.85rem; color: #888; }
+
+    /* Filter bar */
+    .filter-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 28px; flex-wrap: wrap; }
+    .filter-bar label { font-size: 13px; color: #888; }
+    .filter-bar select {
+      padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px;
+      font-size: 13px; font-family: inherit; background: #fff; color: #2D3E50;
+    }
+    .filter-bar select:focus { outline: none; border-color: #999; }
+    .book-count { font-size: 13px; color: #999; margin-left: auto; }
+
+    /* Spectrum container */
+    .spectrum-wrap {
+      background: #fff; border: 1px solid #e8e6e3; border-radius: 10px;
+      padding: 32px 28px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 32px; position: relative;
+    }
+
+    /* The scale axis */
+    .axis { position: relative; height: 48px; margin: 0 24px; }
+    .axis-line {
+      position: absolute; top: 23px; left: 0; right: 0; height: 2px;
+      background: linear-gradient(to right, #B71C1C, #E53935, #EF5350, #EF6C00, #FB8C00, #F9A825, #FBC02D, #43A047, #388E3C, #2E7D32, #1B5E20);
+      border-radius: 1px;
+    }
+    .axis-ticks { position: absolute; top: 0; left: 0; right: 0; height: 100%; }
+    .axis-tick {
+      position: absolute; top: 14px; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .axis-tick .tick-mark { width: 1px; height: 18px; background: #ccc; }
+    .axis-tick .tick-label { font-size: 10px; color: #999; margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+    /* Zone labels */
+    .zone-labels { display: flex; justify-content: space-between; margin: 0 24px; padding-top: 4px; }
+    .zone-label { font-size: 10px; color: #bbb; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Book dots area */
+    .dot-field {
+      position: relative; margin: 20px 24px 16px; min-height: 200px;
+    }
+
+    /* Individual book dot */
+    .book-dot {
+      position: absolute; width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #fff; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, z-index 0s;
+      transform: translateX(-50%);
+      z-index: 1;
+      border: 2px solid rgba(255,255,255,0.7);
+    }
+    .book-dot:hover {
+      transform: translateX(-50%) scale(1.25);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      z-index: 50;
+    }
+    .book-dot.selected {
+      transform: translateX(-50%) scale(1.35);
+      box-shadow: 0 0 0 3px #2D3E50, 0 6px 20px rgba(0,0,0,0.3);
+      z-index: 100;
+    }
+    .book-dot.dimmed { opacity: 0.3; }
+
+    /* Tooltip */
+    .dot-tooltip {
+      display: none; position: absolute; bottom: calc(100% + 10px); left: 50%;
+      transform: translateX(-50%); background: #2D3E50; color: #fff;
+      padding: 8px 14px; border-radius: 6px; font-size: 12px;
+      white-space: nowrap; z-index: 200; pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .dot-tooltip::after {
+      content: ''; position: absolute; top: 100%; left: 50%;
+      transform: translateX(-50%); border: 5px solid transparent;
+      border-top-color: #2D3E50;
+    }
+    .dot-tooltip .tt-title { font-family: 'Libre Baskerville', serif; font-weight: 700; font-size: 13px; }
+    .dot-tooltip .tt-author { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+    .dot-tooltip .tt-rating { font-size: 11px; margin-top: 4px; font-weight: 600; }
+    .book-dot:hover .dot-tooltip,
+    .book-dot.selected .dot-tooltip { display: block; }
+
+    /* Selected book detail panel */
+    .detail-panel {
+      background: #fff; border: 1px solid #e8e6e3; border-radius: 10px;
+      padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 32px; display: none;
+    }
+    .detail-panel.visible { display: block; }
+    .detail-top { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 24px; }
+    .detail-cover { width: 60px; height: 90px; border-radius: 4px; overflow: hidden; flex-shrink: 0; background: #eee; }
+    .detail-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .detail-info { flex: 1; }
+    .detail-title { font-family: 'Libre Baskerville', serif; font-size: 1.15rem; font-weight: 700; color: #2D3E50; }
+    .detail-author { color: #888; font-size: 0.85rem; margin-top: 2px; }
+    .detail-review { font-family: 'Libre Baskerville', serif; font-size: 0.95rem; color: #555; margin-top: 8px; line-height: 1.5; font-style: italic; }
+    .detail-current { display: flex; align-items: center; gap: 12px; }
+    .detail-rating-circle {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .detail-rating-label { font-size: 12px; color: #999; }
+
+    /* Slider section */
+    .slider-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+    .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .slider-label { font-size: 13px; color: #888; }
+    .slider-value {
+      font-family: 'Libre Baskerville', serif; font-size: 1.4rem; font-weight: 700;
+      min-width: 50px; text-align: center;
+    }
+    .slider-track-wrap { position: relative; margin: 0 8px 12px; }
+    .slider-gradient {
+      height: 8px; border-radius: 4px;
+      background: linear-gradient(to right, #B71C1C, #E53935, #EF5350, #EF6C00, #FB8C00, #F9A825, #FBC02D, #43A047, #388E3C, #2E7D32, #1B5E20);
+    }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 8px; background: transparent;
+      position: absolute; top: 0; left: 0; margin: 0; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: #2D3E50; border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: grab;
+      margin-top: -9px;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: #2D3E50; border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: grab;
+    }
+    input[type="range"]:active::-webkit-slider-thumb { cursor: grabbing; }
+    input[type="range"]:active::-moz-range-thumb { cursor: grabbing; }
+
+    .slider-scale { display: flex; justify-content: space-between; padding: 0 4px; }
+    .slider-scale span { font-size: 10px; color: #bbb; }
+
+    .slider-actions { display: flex; gap: 12px; margin-top: 20px; }
+    .btn {
+      padding: 10px 24px; border: none; border-radius: 6px;
+      cursor: pointer; font-size: 14px; font-family: inherit; transition: all 0.2s;
+    }
+    .btn-primary { background: #2D3E50; color: #fff; }
+    .btn-primary:hover { background: #3d4e60; }
+    .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+    .btn-secondary { background: #f5f5f5; color: #2D3E50; border: 1px solid #ddd; }
+    .btn-secondary:hover { background: #eee; }
+    .btn-success { background: #388E3C; color: #fff; }
+    .btn-success:hover { background: #2E7D32; }
+
+    .save-feedback {
+      font-size: 13px; color: #388E3C; align-self: center;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .save-feedback.show { opacity: 1; }
+
+    .change-indicator {
+      font-size: 13px; padding: 4px 10px; border-radius: 12px;
+      font-weight: 600; display: inline-block;
+    }
+    .change-up { color: #388E3C; background: #e8f5e9; }
+    .change-down { color: #c62828; background: #ffebee; }
+    .change-none { color: #888; background: #f5f5f5; }
+
+    /* Loading */
+    .loading { text-align: center; padding: 60px; color: #888; font-size: 14px; }
+
+    /* Empty */
+    .empty-state { text-align: center; padding: 60px 20px; color: #888; }
+
+    /* Admin notice */
+    .admin-notice {
+      background: #fff3e0; border: 1px solid #ffe0b2; border-radius: 6px;
+      padding: 10px 16px; font-size: 13px; color: #e65100; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .viewer-notice {
+      background: #f5f5f5; border: 1px solid #e8e6e3; border-radius: 6px;
+      padding: 10px 16px; font-size: 13px; color: #888; margin-bottom: 20px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center; padding: 32px 24px; border-top: 1px solid #e8e6e3;
+      margin-top: 40px; color: #aaa; font-size: 0.8rem;
+    }
+    footer a { color: #888; text-decoration: none; }
+    footer a:hover { color: #2D3E50; }
+
+    /* Mobile */
+    @media (max-width: 700px) {
+      header { flex-direction: column; align-items: center; gap: 16px; padding: 16px 20px; }
+      .logo-section { flex-direction: column; align-items: center; gap: 4px; }
+      .logo-icon { height: 80px; }
+      .brand-text { text-align: center; }
+      .brand-name { font-size: 1.8rem; }
+      .tagline { font-size: 1rem; }
+      .container { padding: 16px; }
+      .spectrum-wrap { padding: 20px 12px 14px; }
+      .axis { margin: 0 12px; }
+      .dot-field { margin: 16px 12px 12px; }
+      .zone-labels { margin: 0 12px; }
+      .book-dot { width: 28px; height: 28px; font-size: 8px; }
+      .detail-top { flex-direction: column; }
+      .filter-bar { flex-direction: column; align-items: flex-start; }
+      .book-count { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header-border">
+  <header>
+    <div class="logo-section">
+      <a href="/" class="logo-link"><img src="icon.png" alt="Pages Turned" class="logo-icon"></a>
+      <a href="/" class="logo-link">
+        <div class="brand-text">
+          <span class="brand-name">Pages Turned</span>
+          <span class="tagline">The TL;DR of book reviews</span>
+        </div>
+      </a>
+    </div>
+    <div class="nav-links">
+      <a href="/">Rankings</a>
+      <a href="spectrum.html" class="active">Spectrum</a>
+    </div>
+  </header>
+</div>
+
+<div class="container">
+  <div id="app"><div class="loading">Loading books...</div></div>
+</div>
+
+<footer>
+  <a href="/">&larr; Back to Rankings</a>
+</footer>
+
+<script>
+const adminPassword = 'CV!vxUCQvr*p47xNX@ZB';
+const urlParams = new URLSearchParams(window.location.search);
+const isAdmin = urlParams.get('admin') === adminPassword;
+
+let books = [];
+let filteredBooks = [];
+let selectedBook = null;
+let sliderValue = 50;
+let saving = false;
+let yearFilter = 'all';
+
+const getColor = r => {
+  if (r === null) return '#ccc';
+  if (r >= 95) return '#1B5E20';
+  if (r >= 90) return '#2E7D32';
+  if (r >= 85) return '#388E3C';
+  if (r >= 80) return '#43A047';
+  if (r >= 75) return '#FBC02D';
+  if (r >= 70) return '#F9A825';
+  if (r >= 65) return '#FB8C00';
+  if (r >= 60) return '#EF6C00';
+  if (r >= 50) return '#EF5350';
+  if (r >= 40) return '#F44336';
+  if (r >= 30) return '#E53935';
+  if (r >= 20) return '#D32F2F';
+  if (r >= 10) return '#C62828';
+  return '#B71C1C';
+};
+
+const getYear = d => d ? d.slice(0, 4) : null;
+
+async function loadBooks() {
+  try {
+    const res = await fetch('/api/books');
+    const data = await res.json();
+    books = (data.books || []).filter(b => b.rating !== null);
+    applyFilter();
+    render();
+  } catch (e) {
+    document.getElementById('app').innerHTML = '<div class="empty-state">Failed to load books.</div>';
+  }
+}
+
+function applyFilter() {
+  if (yearFilter === 'all') {
+    filteredBooks = [...books];
+  } else {
+    filteredBooks = books.filter(b => getYear(b.dateRead) === yearFilter);
+  }
+  filteredBooks.sort((a, b) => a.rating - b.rating);
+}
+
+function getAvailableYears() {
+  const years = [...new Set(books.map(b => getYear(b.dateRead)).filter(Boolean))];
+  return years.sort((a, b) => b - a);
+}
+
+function selectBook(book) {
+  if (selectedBook && selectedBook.id === book.id) {
+    selectedBook = null;
+  } else {
+    selectedBook = book;
+    sliderValue = book.rating;
+  }
+  render();
+  if (selectedBook) {
+    document.getElementById('detail-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function onSliderInput(val) {
+  sliderValue = parseInt(val);
+  // Update display without full re-render
+  const valEl = document.getElementById('slider-val');
+  const changeEl = document.getElementById('slider-change');
+  const dotPreview = document.getElementById('dot-preview');
+  if (valEl) {
+    valEl.textContent = sliderValue;
+    valEl.style.color = getColor(sliderValue);
+  }
+  if (changeEl && selectedBook) {
+    const diff = sliderValue - selectedBook.rating;
+    if (diff > 0) {
+      changeEl.className = 'change-indicator change-up';
+      changeEl.textContent = `+${diff}`;
+    } else if (diff < 0) {
+      changeEl.className = 'change-indicator change-down';
+      changeEl.textContent = `${diff}`;
+    } else {
+      changeEl.className = 'change-indicator change-none';
+      changeEl.textContent = 'No change';
+    }
+  }
+  // Move preview dot
+  if (dotPreview) {
+    dotPreview.style.left = `${sliderValue}%`;
+    dotPreview.style.background = getColor(sliderValue);
+  }
+}
+
+async function saveRating() {
+  if (!selectedBook || !isAdmin) return;
+  saving = true;
+  render();
+
+  // Update in full books array
+  const bookInAll = books.find(b => b.id === selectedBook.id);
+  if (bookInAll) bookInAll.rating = sliderValue;
+
+  // Fetch full library (including unrated books) to avoid losing them
+  try {
+    const res = await fetch('/api/books');
+    const data = await res.json();
+    const allBooks = data.books || [];
+    const target = allBooks.find(b => b.id === selectedBook.id);
+    if (target) target.rating = sliderValue;
+
+    await fetch('/api/books', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminPassword}`
+      },
+      body: JSON.stringify({ books: allBooks })
+    });
+
+    selectedBook.rating = sliderValue;
+    applyFilter();
+    saving = false;
+    render();
+
+    // Flash success
+    const fb = document.getElementById('save-feedback');
+    if (fb) { fb.classList.add('show'); setTimeout(() => fb.classList.remove('show'), 2000); }
+  } catch (e) {
+    saving = false;
+    alert('Save failed. Check console.');
+    console.error(e);
+    render();
+  }
+}
+
+function setYearFilter(val) {
+  yearFilter = val;
+  selectedBook = null;
+  currentPage = 1;
+  applyFilter();
+  render();
+}
+
+// Layout: stack dots vertically to avoid overlaps
+function layoutDots(booksArr) {
+  // Group books by integer rating
+  const byRating = {};
+  booksArr.forEach(b => {
+    const r = b.rating;
+    if (!byRating[r]) byRating[r] = [];
+    byRating[r].push(b);
+  });
+
+  const positions = [];
+  Object.keys(byRating).forEach(r => {
+    const group = byRating[r];
+    group.forEach((book, i) => {
+      positions.push({
+        book,
+        left: parseInt(r),
+        row: i
+      });
+    });
+  });
+
+  const maxRow = Math.max(...positions.map(p => p.row), 0);
+  return { positions, maxRow };
+}
+
+function render() {
+  const app = document.getElementById('app');
+  const years = getAvailableYears();
+  const { positions, maxRow } = layoutDots(filteredBooks);
+  const dotSize = window.innerWidth <= 700 ? 28 : 36;
+  const fieldHeight = Math.max(80, (maxRow + 1) * (dotSize + 4) + 20);
+
+  let html = '';
+
+  // Page header
+  html += `<div class="page-header">
+    <h1 class="page-title">Rating Spectrum</h1>
+    <p class="page-subtitle">Every rated book, positioned on the 1\u2013100 scale</p>
+  </div>`;
+
+  // Admin notice
+  if (isAdmin) {
+    html += `<div class="admin-notice">\u{1F511} Admin mode \u2014 select any book to adjust its rating</div>`;
+  } else {
+    html += `<div class="viewer-notice">View-only mode. <a href="?admin=" style="color:#666">Admin login</a> required to edit ratings.</div>`;
+  }
+
+  // Filters
+  html += `<div class="filter-bar">
+    <label>Filter:</label>
+    <select onchange="setYearFilter(this.value)">
+      <option value="all" ${yearFilter === 'all' ? 'selected' : ''}>All Time</option>
+      ${years.map(y => `<option value="${y}" ${yearFilter === y ? 'selected' : ''}>${y}</option>`).join('')}
+    </select>
+    <span class="book-count">${filteredBooks.length} book${filteredBooks.length !== 1 ? 's' : ''}</span>
+  </div>`;
+
+  if (filteredBooks.length === 0) {
+    html += '<div class="empty-state">No rated books found.</div>';
+    app.innerHTML = html;
+    return;
+  }
+
+  // Spectrum
+  html += `<div class="spectrum-wrap">`;
+
+  // Zone labels
+  html += `<div class="zone-labels">
+    <span class="zone-label">Avoid</span>
+    <span class="zone-label">Weak</span>
+    <span class="zone-label">Decent</span>
+    <span class="zone-label">Good</span>
+    <span class="zone-label">Great</span>
+    <span class="zone-label">Elite</span>
+  </div>`;
+
+  // Axis
+  html += `<div class="axis">
+    <div class="axis-line"></div>
+    <div class="axis-ticks">
+      ${[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(v => `
+        <div class="axis-tick" style="left:${v}%">
+          <div class="tick-mark"></div>
+          <span class="tick-label">${v}</span>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+
+  // Dot field
+  html += `<div class="dot-field" style="height:${fieldHeight}px">`;
+  positions.forEach(p => {
+    const isSelected = selectedBook && selectedBook.id === p.book.id;
+    const isDimmed = selectedBook && !isSelected;
+    const color = getColor(p.book.rating);
+    const bottom = p.row * (dotSize + 4);
+    const classes = ['book-dot'];
+    if (isSelected) classes.push('selected');
+    if (isDimmed) classes.push('dimmed');
+
+    html += `<div class="${classes.join(' ')}"
+      style="left:${p.left}%; bottom:${bottom}px; background:${color}; box-shadow:0 3px 10px ${color}44; width:${dotSize}px; height:${dotSize}px;"
+      onclick="selectBook(books.find(b=>b.id===${p.book.id}))">
+      <span>${p.book.rating}</span>
+      <div class="dot-tooltip">
+        <div class="tt-title">${p.book.title.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}</div>
+        <div class="tt-author">${(p.book.author || 'Unknown').replace(/"/g, '&quot;')}</div>
+        <div class="tt-rating">Rating: ${p.book.rating}/100</div>
+      </div>
+    </div>`;
+  });
+
+  // If a book is selected and slider moved, show ghost dot at new position
+  if (selectedBook && sliderValue !== selectedBook.rating) {
+    html += `<div id="dot-preview" class="book-dot" style="left:${sliderValue}%; bottom:0; background:${getColor(sliderValue)}; opacity:0.5; border:2px dashed #2D3E50; pointer-events:none; width:${dotSize}px; height:${dotSize}px;">
+      <span>${sliderValue}</span>
+    </div>`;
+  }
+
+  html += `</div>`; // end dot-field
+  html += `</div>`; // end spectrum-wrap
+
+  // Detail / Slider panel
+  html += `<div id="detail-panel" class="detail-panel ${selectedBook ? 'visible' : ''}">`;
+  if (selectedBook) {
+    const diff = sliderValue - selectedBook.rating;
+    let changeHtml;
+    if (diff > 0) changeHtml = `<span class="change-indicator change-up" id="slider-change">+${diff}</span>`;
+    else if (diff < 0) changeHtml = `<span class="change-indicator change-down" id="slider-change">${diff}</span>`;
+    else changeHtml = `<span class="change-indicator change-none" id="slider-change">No change</span>`;
+
+    html += `<div class="detail-top">
+      <div class="detail-info">
+        <div class="detail-title">${selectedBook.title}</div>
+        <div class="detail-author">${selectedBook.author || 'Unknown'}${selectedBook.year ? ` (${selectedBook.year})` : ''}</div>
+        ${selectedBook.review ? `<div class="detail-review">\u201C${selectedBook.review}\u201D</div>` : ''}
+      </div>
+      <div class="detail-current">
+        <div class="detail-rating-circle" style="background:${getColor(selectedBook.rating)}; box-shadow:0 3px 10px ${getColor(selectedBook.rating)}44;">
+          ${selectedBook.rating}
+        </div>
+        <div class="detail-rating-label">Current</div>
+      </div>
+    </div>`;
+
+    if (isAdmin) {
+      html += `<div class="slider-section">
+        <div class="slider-header">
+          <span class="slider-label">Adjust rating:</span>
+          <span class="slider-value" id="slider-val" style="color:${getColor(sliderValue)}">${sliderValue}</span>
+          ${changeHtml}
+        </div>
+        <div class="slider-track-wrap">
+          <div class="slider-gradient"></div>
+          <input type="range" min="1" max="100" value="${sliderValue}" oninput="onSliderInput(this.value)">
+        </div>
+        <div class="slider-scale">
+          <span>1</span><span>25</span><span>50</span><span>75</span><span>100</span>
+        </div>
+        <div class="slider-actions">
+          <button class="btn btn-primary" onclick="saveRating()" ${saving ? 'disabled' : ''} ${diff === 0 ? 'disabled' : ''}>
+            ${saving ? 'Saving...' : 'Save New Rating'}
+          </button>
+          <button class="btn btn-secondary" onclick="sliderValue=${selectedBook.rating};render()">Reset</button>
+          <button class="btn btn-secondary" onclick="selectedBook=null;render()">Deselect</button>
+          <span class="save-feedback" id="save-feedback">\u2713 Saved</span>
+        </div>
+      </div>`;
+    } else {
+      html += `<div style="margin-top:16px; padding-top:16px; border-top:1px solid #eee;">
+        <button class="btn btn-secondary" onclick="selectedBook=null;render()">Deselect</button>
+      </div>`;
+    }
+  }
+  html += `</div>`; // end detail-panel
+
+  app.innerHTML = html;
+}
+
+// Close dropdown if click outside
+document.addEventListener('click', (e) => {
+  if (selectedBook && !e.target.closest('.book-dot') && !e.target.closest('.detail-panel')) {
+    // Don't deselect, just let the user use the deselect button
+  }
+});
+
+loadBooks();
+</script>
+</body>
+</html>
